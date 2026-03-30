@@ -1,6 +1,8 @@
 """tribe_issachar.py — Issachar: Scholar / Analyst
 Tier 3. Domain: Deep research, pattern recognition.
 Hermes eligible: no
+
+BUG 1 fix: sets next_node=None on exit (dispatch_to is set explicitly when needed).
 """
 
 from __future__ import annotations
@@ -22,7 +24,7 @@ or return findings directly if sufficient context exists in the task.
 Mandatory behaviors:
 - [C2] All findings must note their source inputs. No unsourced conclusions.
 - [C5] Output must be structured and directly actionable by a Tier 2 judge.
-- [C8] If scope is too broad, split and set recommended_dispatch with multiple targets.
+- [C8] If scope is too broad, split and set dispatch_to with the best target.
 
 Output format (respond with valid JSON only, no markdown):
 {
@@ -40,14 +42,18 @@ Output format (respond with valid JSON only, no markdown):
 
 def issachar_node(state: AgentState) -> AgentState:
     task = state.get("task", "")
-    result = llm_call("issachar", SYSTEM_PROMPT, task)
-    dispatch_to = result.get("dispatch_to")
-    return {
-        **state,
-        "current_tribe": "issachar",
-        "jethro_tier": 3,
-        "next_node": dispatch_to if dispatch_to else None,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-    }
+    try:
+        result = llm_call("issachar", SYSTEM_PROMPT, task)
+        dispatch_to = result.get("dispatch_to") or None
+        return {
+            **state,
+            "current_tribe": "issachar",
+            "jethro_tier": 3,
+            "next_node": dispatch_to,   # None if no dispatch needed; composer routes to END or Hermes
+            "tribe_output": result,
+            "output": result,
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False)),
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "issachar", "tribe_error": str(exc), "next_node": None}

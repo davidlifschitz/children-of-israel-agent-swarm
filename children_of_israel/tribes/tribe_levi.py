@@ -1,6 +1,8 @@
 """tribe_levi.py — Levi: Priest / Steward
 Tier 1 senior (cross-tier). Domain: Memory, system integrity, record-keeping.
 Hermes eligible: no
+
+BUG 1 fix: sets next_node=None on exit.
 """
 
 from __future__ import annotations
@@ -37,12 +39,17 @@ Output format (respond with valid JSON only, no markdown):
 
 def levi_node(state: AgentState) -> AgentState:
     task = str(state.get("output") or state.get("task", ""))
-    result = llm_call("levi", SYSTEM_PROMPT, task)
-    return {
-        **state,
-        "current_tribe": "levi",
-        "jethro_tier": 1,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-    }
+    try:
+        result = llm_call("levi", SYSTEM_PROMPT, task)
+        return {
+            **state,
+            "current_tribe": "levi",
+            "jethro_tier": 1,
+            "tribe_output": result,
+            "output": result,
+            "next_node": None,
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False)),
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "levi", "tribe_error": str(exc), "next_node": None}

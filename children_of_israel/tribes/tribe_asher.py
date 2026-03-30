@@ -1,6 +1,8 @@
 """tribe_asher.py — Asher: Optimizer / Enricher
 Tier 3. Domain: Output quality, refinement, polishing.
 Hermes eligible: yes (maestro, execplan-skill)
+
+BUG 1 fix: sets next_node=None on exit.
 """
 
 from __future__ import annotations
@@ -39,13 +41,18 @@ Output format (respond with valid JSON only, no markdown):
 def asher_node(state: AgentState) -> AgentState:
     raw = state.get("output") or state.get("tribe_output", {})
     task = raw.get("summary", str(raw)) if isinstance(raw, dict) else str(raw)
-    result = llm_call("asher", SYSTEM_PROMPT, task)
-    return {
-        **state,
-        "current_tribe": "asher",
-        "jethro_tier": 3,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-        "escalation_reason": "Asher: fact change required" if result.get("escalate") else None,
-    }
+    try:
+        result = llm_call("asher", SYSTEM_PROMPT, task)
+        return {
+            **state,
+            "current_tribe": "asher",
+            "jethro_tier": 3,
+            "tribe_output": result,
+            "output": result,
+            "next_node": None,
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False)),
+            "escalation_reason": "Asher: fact change required during refinement" if result.get("escalate") else None,
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "asher", "tribe_error": str(exc), "next_node": None}

@@ -1,6 +1,8 @@
 """tribe_benjamin.py — Benjamin: Guardian / Protector
 Tier 4 + Senior. Domain: Security, trust verification, agent protection.
 Hermes eligible: no
+
+BUG 1 fix: sets next_node=None on exit.
 """
 
 from __future__ import annotations
@@ -38,14 +40,19 @@ Output format (respond with valid JSON only, no markdown):
 
 def benjamin_node(state: AgentState) -> AgentState:
     task = str(state.get("output") or state.get("task", ""))
-    result = llm_call("benjamin", SYSTEM_PROMPT, task)
-    threats = result.get("threats_detected", [])
-    return {
-        **state,
-        "current_tribe": "benjamin",
-        "jethro_tier": 4,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False) or bool(threats)),
-        "escalation_reason": f"Benjamin: threats detected: {threats}" if threats else None,
-    }
+    try:
+        result = llm_call("benjamin", SYSTEM_PROMPT, task)
+        threats = result.get("threats_detected", [])
+        return {
+            **state,
+            "current_tribe": "benjamin",
+            "jethro_tier": 4,
+            "tribe_output": result,
+            "output": result,
+            "next_node": None,
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False) or bool(threats)),
+            "escalation_reason": f"Benjamin: threats detected: {threats}" if threats else None,
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "benjamin", "tribe_error": str(exc), "next_node": None}

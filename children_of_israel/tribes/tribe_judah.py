@@ -1,7 +1,8 @@
 """tribe_judah.py — Judah: Commander / Leader
 Tier 1 senior. Domain: Command coordination, execution, ownership.
 Hermes eligible: no
-Note: Default Tier 1 entry point from Moses.
+
+BUG 1 fix: sets next_node after LLM decision, composer clears it after consuming.
 """
 
 from __future__ import annotations
@@ -40,16 +41,20 @@ Output format (respond with valid JSON only, no markdown):
 
 def judah_node(state: AgentState) -> AgentState:
     task = state.get("task", "")
-    result = llm_call("judah", SYSTEM_PROMPT, task)
-    dispatched_to = result.get("dispatched_to", "issachar")
-    return {
-        **state,
-        "current_tribe": "judah",
-        "jethro_tier": 1,
-        "mandate": result.get("mandate", state.get("mandate", "")),
-        "task": result.get("task", task),      # refined task for downstream tribe
-        "next_node": dispatched_to,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-    }
+    try:
+        result = llm_call("judah", SYSTEM_PROMPT, task)
+        dispatched_to = result.get("dispatched_to", "issachar")
+        return {
+            **state,
+            "current_tribe": "judah",
+            "jethro_tier": 1,
+            "mandate": result.get("mandate", state.get("mandate", "")),
+            "task": result.get("task", task),
+            "next_node": dispatched_to,   # composer reads + routes; tribe clears on its own exit
+            "tribe_output": result,
+            "output": result,
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False)),
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "judah", "tribe_error": str(exc), "next_node": None}

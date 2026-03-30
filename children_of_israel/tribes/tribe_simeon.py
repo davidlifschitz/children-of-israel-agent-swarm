@@ -1,6 +1,8 @@
 """tribe_simeon.py — Simeon: Zealot / Enforcer
 Tier 2 mid-senior. Domain: Compliance, auditing, rule enforcement.
 Hermes eligible: no
+
+BUG 1 fix: sets next_node=None on exit.
 """
 
 from __future__ import annotations
@@ -38,16 +40,21 @@ Output format (respond with valid JSON only, no markdown):
 
 def simeon_node(state: AgentState) -> AgentState:
     task = str(state.get("output") or state.get("task", ""))
-    result = llm_call("simeon", SYSTEM_PROMPT, task)
-    violations = result.get("violations", [])
-    if violations:
-        state.get("constitution_violations", []).extend(violations)
-    return {
-        **state,
-        "current_tribe": "simeon",
-        "jethro_tier": 2,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-        "escalation_reason": str(violations) if result.get("escalate") else None,
-    }
+    try:
+        result = llm_call("simeon", SYSTEM_PROMPT, task)
+        violations = result.get("violations", [])
+        existing = list(state.get("constitution_violations") or [])
+        return {
+            **state,
+            "current_tribe": "simeon",
+            "jethro_tier": 2,
+            "tribe_output": result,
+            "output": result,
+            "next_node": None,
+            "tribe_error": None,
+            "constitution_violations": existing + violations,
+            "escalate": bool(result.get("escalate", False)),
+            "escalation_reason": str(violations) if result.get("escalate") else None,
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "simeon", "tribe_error": str(exc), "next_node": None}

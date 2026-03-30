@@ -1,6 +1,8 @@
 """tribe_reuben.py — Reuben: Pioneer / Scout
 Tier 4 leaf executor. Domain: Exploration, first-pass analysis.
 Hermes eligible: yes (hermes-web-search-plus, flowstate-qmd)
+
+BUG 1 fix: sets next_node=None on exit to prevent stale routing.
 """
 
 from __future__ import annotations
@@ -38,13 +40,18 @@ Output format (respond with valid JSON only, no markdown):
 
 def reuben_node(state: AgentState) -> AgentState:
     task = state.get("task", "")
-    result = llm_call("reuben", SYSTEM_PROMPT, task)
-    return {
-        **state,
-        "current_tribe": "reuben",
-        "jethro_tier": 4,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-        "escalation_reason": result.get("summary", "") if result.get("escalate") else None,
-    }
+    try:
+        result = llm_call("reuben", SYSTEM_PROMPT, task)
+        return {
+            **state,
+            "current_tribe": "reuben",
+            "jethro_tier": 4,
+            "tribe_output": result,
+            "output": result,
+            "next_node": None,   # BUG 1 fix: clear after producing output
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False)),
+            "escalation_reason": result.get("summary", "") if result.get("escalate") else None,
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "reuben", "tribe_error": str(exc), "next_node": None}

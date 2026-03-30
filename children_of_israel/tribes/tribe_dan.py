@@ -1,7 +1,8 @@
 """tribe_dan.py — Dan: Judge / Arbitrator
 Tier 1 senior. Domain: Conflict resolution, edge case adjudication.
 Hermes eligible: no
-Note: Primary escalation target for Hermes constitution violations.
+
+BUG 1 fix: sets next_node=None on exit.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ Mandatory behaviors:
 - [C4] Your rulings flow downward. Tribes below you must comply.
 
 Oral Law OL-002 — The Dan Precedent:
-  Set precedent_set=true for novel conflict types. Future same-type conflicts defer to this ruling.
+  Set precedent_set=true for novel conflict types.
 
 Output format (respond with valid JSON only, no markdown):
 {
@@ -43,23 +44,25 @@ Output format (respond with valid JSON only, no markdown):
 
 def dan_node(state: AgentState) -> AgentState:
     escalation_reason = state.get("escalation_reason", "No reason provided")
-    result = llm_call("dan", SYSTEM_PROMPT, escalation_reason)
-
-    existing_precedents = state.get("oral_law_precedents", [])
-    precedent_id = f"DAN-{len(existing_precedents) + 1:04d}"
-    if result.get("precedent_set"):
-        result["precedent_id"] = precedent_id
-        existing_precedents = existing_precedents + [precedent_id]
-
-    should_escalate = result.get("ruling") == "escalate_to_moses"
-    return {
-        **state,
-        "current_tribe": "dan",
-        "jethro_tier": 1,
-        "oral_law_precedents": existing_precedents,
-        "tribe_output": result,
-        "output": result,
-        "escalate": should_escalate,
-        "escalation_reason": None,
-        "next_node": "moses" if should_escalate else None,
-    }
+    try:
+        result = llm_call("dan", SYSTEM_PROMPT, escalation_reason)
+        existing_precedents = list(state.get("oral_law_precedents") or [])
+        precedent_id = f"DAN-{len(existing_precedents) + 1:04d}"
+        if result.get("precedent_set"):
+            result["precedent_id"] = precedent_id
+            existing_precedents = existing_precedents + [precedent_id]
+        should_escalate = result.get("ruling") == "escalate_to_moses"
+        return {
+            **state,
+            "current_tribe": "dan",
+            "jethro_tier": 1,
+            "oral_law_precedents": existing_precedents,
+            "tribe_output": result,
+            "output": result,
+            "next_node": None,   # BUG 1 fix
+            "tribe_error": None,
+            "escalate": should_escalate,
+            "escalation_reason": None,
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "dan", "tribe_error": str(exc), "next_node": None}

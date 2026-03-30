@@ -1,6 +1,8 @@
 """tribe_joseph.py — Joseph: Visionary / Planner
 Tier 1 senior (advises top). Domain: Strategic forecasting, long-range planning.
 Hermes eligible: no
+
+BUG 1 fix: sets next_node=None on exit.
 """
 
 from __future__ import annotations
@@ -39,12 +41,17 @@ Output format (respond with valid JSON only, no markdown):
 
 def joseph_node(state: AgentState) -> AgentState:
     task = f"Mission: {state.get('mission', '')}\n\nCurrent output: {state.get('output', '')}"
-    result = llm_call("joseph", SYSTEM_PROMPT, task)
-    return {
-        **state,
-        "current_tribe": "joseph",
-        "jethro_tier": 1,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-    }
+    try:
+        result = llm_call("joseph", SYSTEM_PROMPT, task)
+        return {
+            **state,
+            "current_tribe": "joseph",
+            "jethro_tier": 1,
+            "tribe_output": result,
+            "output": result,
+            "next_node": None,
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False)),
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "joseph", "tribe_error": str(exc), "next_node": None}

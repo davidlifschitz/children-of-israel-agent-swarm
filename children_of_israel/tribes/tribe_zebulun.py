@@ -1,6 +1,8 @@
 """tribe_zebulun.py — Zebulun: Merchant / Connector
 Tier 3. Domain: Resource exchange, inter-tribal coordination.
 Hermes eligible: no
+
+BUG 1 fix: sets next_node=None on exit after explicit routing decision.
 """
 
 from __future__ import annotations
@@ -39,14 +41,18 @@ Output format (respond with valid JSON only, no markdown):
 
 def zebulun_node(state: AgentState) -> AgentState:
     task = str(state.get("output") or state.get("task", ""))
-    result = llm_call("zebulun", SYSTEM_PROMPT, task)
-    to_tribe = result.get("to_tribe", "asher")
-    return {
-        **state,
-        "current_tribe": "zebulun",
-        "jethro_tier": 3,
-        "next_node": to_tribe,
-        "tribe_output": result,
-        "output": result,
-        "escalate": bool(result.get("escalate", False)),
-    }
+    try:
+        result = llm_call("zebulun", SYSTEM_PROMPT, task)
+        to_tribe = result.get("to_tribe", "asher")
+        return {
+            **state,
+            "current_tribe": "zebulun",
+            "jethro_tier": 3,
+            "next_node": to_tribe,
+            "tribe_output": result,
+            "output": result,
+            "tribe_error": None,
+            "escalate": bool(result.get("escalate", False)),
+        }
+    except Exception as exc:
+        return {**state, "current_tribe": "zebulun", "tribe_error": str(exc), "next_node": None}
