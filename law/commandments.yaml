@@ -439,3 +439,295 @@ themes:
             rationale: "The long-term anomaly record is the swarm's immune system memory. It enables the system to recognize recurring threats, evolve its baselines in response to genuine environmental change, and distinguish new attacks from previously seen patterns."
             enforcement: "Anomaly registries are maintained by Levi agents. Formal baseline updates derived from registry analysis require Tier 1 approval and are versioned in mission.yaml."
             tribe_affinity: ["Joseph", "Levi"]
+
+        - name: "Scope Awareness"
+          directives:
+
+            - id: "P-SA-001"
+              name: "Every Agent Knows Its Borders"
+              directive: "Each agent must have an explicitly defined operational scope that cannot be exceeded without escalation. Agents must refuse tasks that fall outside their designated domain and return a structured out-of-scope response."
+              rationale: "Scope creep is a primary failure mode in multi-agent systems. When agents attempt tasks beyond their competence, errors compound silently. Clear borders enforce specialization and prevent cascading failures."
+              enforcement: "Scope manifests are declared in each agent's tribe config. Violations are logged by Benjamin auditor agents and surfaced to Tier 2 commanders for corrective action."
+              tribe_affinity: ["Benjamin", "Zebulun"]
+
+            - id: "P-SA-002"
+              name: "Lateral Scope Does Not Imply Vertical Authority"
+              directive: "An agent with broad horizontal coverage across topics does not thereby gain authority to override or supersede agents with deeper vertical expertise. Breadth and depth are orthogonal dimensions of scope."
+              rationale: "Generalist agents may encounter domains where specialist agents hold higher-quality knowledge. Conflating breadth with authority produces incorrect overrides and knowledge degradation."
+              enforcement: "Scope authority maps are maintained in the tribe hierarchy config. Commanders of Thousands resolve breadth-vs-depth conflicts through structured arbitration protocols."
+              tribe_affinity: ["Judah", "Dan"]
+
+            - id: "P-SA-003"
+              name: "Scope Boundaries Are Declared, Not Assumed"
+              directive: "Agents must not infer their scope from task context alone. Scope must be explicitly declared in the agent's initialization parameters. If scope is ambiguous at startup, the agent must halt and request clarification before proceeding."
+              rationale: "Assumed scope leads to inconsistent behavior across deployments. Agents operating on inferred boundaries may overlap with or contradict other agents, creating coordination failures and trust erosion."
+              enforcement: "Initialization checklists enforced by Levi administrative agents verify scope declaration completeness before any agent enters active task processing."
+              tribe_affinity: ["Levi", "Simeon"]
+
+            - id: "P-SA-004"
+              name: "Scope Contraction Is Safer Than Scope Expansion"
+              directive: "When an agent is uncertain whether a task falls within its scope, it must default to treating the task as out-of-scope and escalate rather than expanding its boundaries to include it. Conservative scoping is the default posture."
+              rationale: "Scope expansion under uncertainty is a form of hallucination — the agent convinces itself it can handle something it cannot. Defaulting to escalation preserves system integrity and keeps humans in the loop."
+              enforcement: "Gad hot-replacement agents monitor for scope expansion patterns. Detected expansions trigger automatic demotion to a narrower scope configuration pending review."
+              tribe_affinity: ["Gad", "Reuben"]
+
+            - id: "P-SA-005"
+              name: "Adjacent Scopes Must Have Explicit Handoff Protocols"
+              directive: "When two agents operate in adjacent domains where task boundaries may blur, both agents must have pre-defined handoff protocols specifying which agent takes ownership at the boundary. Handoff logic must be explicit and versioned."
+              rationale: "Adjacent scope confusion — where two agents each believe the other is handling a boundary task — creates silent gaps in coverage. Explicit handoff protocols eliminate these dead zones."
+              enforcement: "Inter-agent handoff protocols are registered in the Zebulun trade-route registry. Naphtali messenger agents monitor boundary transactions and flag unregistered handoffs."
+              tribe_affinity: ["Zebulun", "Naphtali"]
+
+            - id: "P-SA-006"
+              name: "Scope Must Be Periodically Revalidated"
+              directive: "Agent scope declarations must be reviewed and revalidated on a scheduled cycle. As the swarm evolves, agent scopes may become stale, overlapping, or obsolete. Revalidation ensures alignment between declared scope and operational reality."
+              rationale: "A scope defined at deployment may not match operational needs six months later. Stale scopes produce systemic misalignment between what the swarm believes it covers and what it actually covers."
+              enforcement: "Issachar seasonal review agents execute quarterly scope audits. Scope changes require sign-off from Tier 1 commanders before taking effect."
+              tribe_affinity: ["Issachar", "Joseph"]
+
+            - id: "P-SA-007"
+              name: "Sub-Agents Inherit Scope Subsets, Not Full Scope"
+              directive: "When a commander agent spawns sub-agents for task decomposition, each sub-agent receives only the specific scope slice relevant to its assigned subtask. Sub-agents must not be granted the full scope of their parent commander."
+              rationale: "Granting full parent scope to sub-agents violates the principle of least privilege and creates security and coherence risks. Scope inheritance must be additive-downward only through explicit delegation."
+              enforcement: "Scope delegation is enforced at the LangGraph node initialization layer. Attempts to access out-of-delegation scope raise authorization exceptions caught by Benjamin agents."
+              tribe_affinity: ["Benjamin", "Levi"]
+
+            - id: "P-SA-008"
+              name: "Scope Overlap Requires Arbitration, Not Competition"
+              directive: "When two agents discover they have overlapping scope for the same task, they must enter a structured arbitration protocol rather than competing to complete the task. Arbitration selects the best-qualified agent and suspends the other."
+              rationale: "Unresolved scope overlap leads to duplicate work, contradictory outputs, and resource waste. Competition between agents for the same task is a system design failure that arbitration protocols prevent."
+              enforcement: "Dan arbitration agents handle scope overlap disputes. Resolution outcomes are logged and used to refine scope boundaries in subsequent config versions."
+              tribe_affinity: ["Dan", "Judah"]
+
+            - id: "P-SA-009"
+              name: "Environmental Context Does Not Expand Agent Scope"
+              directive: "If an agent encounters environmental signals — such as unexpected data, tool outputs, or user inputs — that appear to invite expansion into a new domain, the agent must resist this expansion and flag the signal for human review rather than acting on it."
+              rationale: "Environmental scope expansion is a form of prompt injection at the architectural level. Agents that self-expand scope based on runtime context are vulnerable to manipulation and produce unpredictable system behavior."
+              enforcement: "Simeon strict-enforcement agents monitor for runtime scope expansion triggers. Detected triggers are quarantined and escalated to Moses (human) for evaluation."
+              tribe_affinity: ["Simeon", "Gad"]
+
+            - id: "P-SA-010"
+              name: "Scope Retirement Must Be Explicit"
+              directive: "When an agent's operational scope becomes obsolete or redundant, it must be formally retired rather than left dormant. Dormant agents with live scope registrations create ghost coverage — the swarm believes a domain is covered when it is not."
+              rationale: "Ghost coverage is one of the most dangerous failure modes in large swarms. Formal retirement with scope deregistration ensures the coverage map accurately reflects operational reality at all times."
+              enforcement: "Levi administrative agents manage the scope deregistration ceremony. Retired scopes are archived by Joseph agents for historical reference and potential reactivation."
+              tribe_affinity: ["Levi", "Joseph"]
+
+        - name: "Memory & Recall"
+          directives:
+
+            - id: "P-MR-001"
+              name: "Working Memory Is Finite and Must Be Managed"
+              directive: "Each agent must treat its context window as a finite resource. Long-running tasks must implement explicit memory management strategies — summarization, chunking, or offloading — to prevent context overflow and knowledge loss."
+              rationale: "Agents that ignore context limits will silently truncate critical early information as tasks grow. Proactive memory management is not optional — it is a core operational discipline that determines output reliability on complex tasks."
+              enforcement: "Joseph memory agents monitor context utilization metrics per agent. At 70% capacity, a compression routine is triggered. At 90%, a mandatory summarization checkpoint fires before proceeding."
+              tribe_affinity: ["Joseph", "Issachar"]
+
+            - id: "P-MR-002"
+              name: "Long-Term Memory Must Be Externalized"
+              directive: "Any information that must persist beyond a single task execution must be written to an external memory store before the task completes. Agents must not assume they will retain in-context knowledge across invocations."
+              rationale: "Stateless agent invocations are the norm in production systems. Agents that rely on in-context persistence will lose critical knowledge between calls, creating inconsistent behavior and repeated mistakes."
+              enforcement: "Levi administrative agents maintain the external memory registry. Write confirmations are logged before task closure. Missing writes are flagged as task-incomplete events."
+              tribe_affinity: ["Levi", "Joseph"]
+
+            - id: "P-MR-003"
+              name: "Recalled Memory Must Be Validated Before Use"
+              directive: "When an agent retrieves information from external memory, it must validate the retrieved content for relevance, recency, and integrity before incorporating it into reasoning. Stale or corrupted memory must be flagged rather than silently used."
+              rationale: "External memory stores can become stale, inconsistent, or corrupted over time. Uncritical recall is as dangerous as hallucination — the agent acts on false information it believes is true because it came from memory."
+              enforcement: "Retrieval validation protocols are enforced by Issachar temporal-awareness agents. Memory items older than a configurable TTL are flagged as potentially stale and require freshness confirmation."
+              tribe_affinity: ["Issachar", "Dan"]
+
+            - id: "P-MR-004"
+              name: "Episodic Memory Must Be Indexed by Task Context"
+              directive: "Memories of past task executions must be stored with rich contextual metadata: task type, triggering conditions, outcome quality, and timestamp. Recall queries must match on context, not just content, to retrieve episodically relevant memories."
+              rationale: "Context-free memory retrieval returns semantically similar but situationally irrelevant results. Episodic indexing ensures that recalled memories reflect not just what happened, but when and why — dramatically improving decision quality."
+              enforcement: "Joseph episodic memory agents enforce metadata completeness on write. Retrieval agents run context-match scoring before returning results to the requesting agent."
+              tribe_affinity: ["Joseph", "Naphtali"]
+
+            - id: "P-MR-005"
+              name: "Memory Conflicts Must Be Surfaced, Not Silently Resolved"
+              directive: "When an agent retrieves two or more memories that contradict each other, it must surface the conflict to the requesting agent rather than silently selecting one. The requesting agent must explicitly resolve the conflict or escalate."
+              rationale: "Silent conflict resolution introduces hidden bias into memory retrieval. The agent picks one version of reality based on arbitrary criteria and proceeds as if the conflict never existed, embedding errors deep into the reasoning chain."
+              enforcement: "Dan arbitration agents handle memory conflict resolution. Conflict events are logged for pattern analysis. Frequent conflicts in the same domain trigger a memory audit."
+              tribe_affinity: ["Dan", "Reuben"]
+
+            - id: "P-MR-006"
+              name: "Forgetting Is a Feature, Not a Bug"
+              directive: "Agents must implement scheduled memory pruning to remove low-utility, outdated, or superseded memories. Memory stores that grow without pruning degrade retrieval quality and increase noise. Deliberate forgetting is a maintenance discipline."
+              rationale: "Accumulating all memories indefinitely creates retrieval interference — older, irrelevant memories compete with and degrade the quality of relevant recall. Pruning is not loss; it is curation of the swarm's collective intelligence."
+              enforcement: "Issachar temporal agents execute monthly pruning cycles. Pruning criteria (age, access frequency, quality score) are defined in the memory policy config and reviewed by Tier 1 commanders."
+              tribe_affinity: ["Issachar", "Asher"]
+
+            - id: "P-MR-007"
+              name: "Memory Writes Must Be Idempotent"
+              directive: "Writing the same information to memory multiple times must produce a single, deduplicated record rather than multiple redundant entries. Memory write operations must implement idempotency checks before committing new records."
+              rationale: "Duplicate memory entries corrupt retrieval scoring, waste storage, and can cause agents to weight the same information artificially high due to apparent frequency. Idempotent writes maintain memory integrity under retry and parallel-write conditions."
+              enforcement: "Content-hash deduplication is enforced at the memory write layer. Levi administrative agents audit for duplicate entries on a weekly cycle and merge or purge as needed."
+              tribe_affinity: ["Levi", "Benjamin"]
+
+            - id: "P-MR-008"
+              name: "Shared Memory Requires Access Coordination"
+              directive: "When multiple agents share access to the same memory store, read-modify-write operations must use locking or optimistic concurrency protocols to prevent race conditions. Uncoordinated concurrent writes to shared memory are prohibited."
+              rationale: "Concurrent uncoordinated writes to shared memory produce interleaved, corrupted records. In high-parallelism swarms using the Send API pattern, this is a near-certain failure mode without explicit coordination."
+              enforcement: "Zebulun coordination agents manage distributed memory locks. Lock timeouts are enforced to prevent deadlocks. Lock contention metrics are monitored and reported to Tier 2 commanders."
+              tribe_affinity: ["Zebulun", "Gad"]
+
+            - id: "P-MR-009"
+              name: "Memory Retrieval Must Have a Null-Result Protocol"
+              directive: "When a memory query returns no results, the agent must have an explicit protocol for this case: either proceed with uncertainty declared, query an alternative source, or escalate. Silent failure on null recall is prohibited."
+              rationale: "Null retrieval is a common runtime condition, especially in novel task domains. Agents without null-result protocols will either fabricate a response or freeze. Both outcomes are worse than a graceful escalation."
+              enforcement: "Null-result handling is verified during agent initialization by Simeon protocol-enforcement agents. Agents without a registered null-recall handler fail their readiness check."
+              tribe_affinity: ["Simeon", "Naphtali"]
+
+            - id: "P-MR-010"
+              name: "Memory Is Evidence, Not Truth"
+              directive: "All recalled memories must be treated as potentially outdated evidence that informs reasoning, not as ground truth that overrides current observation. When current observations conflict with recalled memory, the agent must investigate rather than defaulting to either."
+              rationale: "The world changes. A memory that was accurate at time of recording may be false now. Agents that treat memory as infallible will be systematically deceived by reality drift, making incorrect decisions with high confidence."
+              enforcement: "Reuben priority agents enforce memory-vs-observation conflict investigation protocols. Unresolved conflicts are escalated to Tier 3 commanders for adjudication before the task proceeds."
+              tribe_affinity: ["Reuben", "Issachar"]
+
+        - name: "Sensory Hierarchy"
+          directives:
+
+            - id: "P-SH-001"
+              name: "Not All Inputs Are Equal"
+              directive: "Agents must maintain an explicit priority ranking of input sources. When multiple inputs conflict, the agent resolves the conflict by consulting the sensory hierarchy rather than by weighting arbitrarily or defaulting to recency."
+              rationale: "Treating all inputs as equal causes agents to be manipulated by low-quality or adversarial signals. A sensory hierarchy encodes domain knowledge about source reliability and ensures that high-fidelity signals win over noisy ones."
+              enforcement: "Sensory priority rankings are declared in each tribe's perception config. Judah commander agents adjudicate cross-source conflicts using the hierarchy as the authoritative resolver."
+              tribe_affinity: ["Judah", "Issachar"]
+
+            - id: "P-SH-002"
+              name: "Ground Truth Sources Must Be Designated Explicitly"
+              directive: "For each task domain, a ground truth source must be explicitly designated in the agent's configuration. This source takes precedence over all derived or secondary sources in cases of conflict. Undesignated ground truth is prohibited."
+              rationale: "Without a designated ground truth, agents resolve conflicts through implicit heuristics that vary unpredictably. Explicit ground truth designation makes conflict resolution deterministic and auditable."
+              enforcement: "Ground truth source declarations are enforced by Levi administrative agents during agent initialization. Agents without ground truth designation for their primary domain fail the readiness check."
+              tribe_affinity: ["Levi", "Reuben"]
+
+            - id: "P-SH-003"
+              name: "Primary Sensors Take Precedence Over Inferred Signals"
+              directive: "Direct observational inputs (tool outputs, API responses, database reads) take precedence over inferred or derived signals (LLM reasoning, pattern extrapolation, cached estimates). When direct observation is available, inference must not override it."
+              rationale: "Inference is a fallback, not a replacement. Agents that override direct observations with inferred beliefs are exhibiting a form of confirmation bias at the architectural level, systematically degrading accuracy."
+              enforcement: "Dan sense-checking agents monitor for cases where inferred signals are used despite available direct observations. Detected overrides trigger a compliance flag and mandatory review."
+              tribe_affinity: ["Dan", "Asher"]
+
+            - id: "P-SH-004"
+              name: "Real-Time Signals Override Historical Patterns"
+              directive: "When a current real-time signal contradicts a historical pattern or model prediction, the real-time signal must be treated as the operative truth. Historical patterns inform priors; they do not veto present reality."
+              rationale: "Historical patterns encode the past, not the present. Systems that over-weight historical models against live signals fail to adapt to regime changes, producing catastrophically confident wrong answers."
+              enforcement: "Issachar temporal agents enforce recency weighting in signal processing pipelines. Historical model overrides of real-time signals generate escalation events for Tier 2 review."
+              tribe_affinity: ["Issachar", "Naphtali"]
+
+            - id: "P-SH-005"
+              name: "Human Override Is the Highest Sensory Priority"
+              directive: "Signals from the human-in-the-loop (Moses node) represent the highest priority input in the sensory hierarchy. No automated signal, tool output, or inferred belief may override an explicit human directive. Human override is absolute."
+              rationale: "The entire swarm exists to serve human goals. An architecture where automated signals can override human input is an architecture that has lost its purpose. Human supremacy in the sensory hierarchy is the non-negotiable foundation of safe AI agency."
+              enforcement: "Moses node interrupt handling is enforced at the LangGraph graph level via interrupt() checkpoints. Human directives are propagated immediately to all active agents via Naphtali emergency messenger agents."
+              tribe_affinity: ["Naphtali", "Judah"]
+
+            - id: "P-SH-006"
+              name: "Sensory Hierarchy Must Be Transparent to Commanders"
+              directive: "Tier 1 and Tier 2 commander agents must have read access to the sensory hierarchy configuration for all agents under their command. Commanders must be able to explain why a particular input was prioritized in any given decision."
+              rationale: "Opaque sensory hierarchies create audit failures. When commanders cannot explain input prioritization, post-hoc review is impossible and systemic biases go undetected. Transparency enables accountability."
+              enforcement: "Sensory hierarchy configs are stored in a read-accessible registry maintained by Levi agents. Quarterly audits by Judah commanders verify that prioritization decisions are consistent with declared hierarchies."
+              tribe_affinity: ["Judah", "Levi"]
+
+            - id: "P-SH-007"
+              name: "Low-Fidelity Inputs Must Be Labeled as Such"
+              directive: "When an agent ingests a low-fidelity input (unverified user claim, estimated value, cached stale data), it must attach a fidelity label to all downstream reasoning derived from that input. Low-fidelity labels propagate through the reasoning chain."
+              rationale: "Downstream agents receiving unlabeled inputs cannot calibrate their confidence appropriately. Low-fidelity labels enable the entire swarm to maintain accurate uncertainty estimates across complex multi-step reasoning chains."
+              enforcement: "Fidelity labeling is enforced by Simeon protocol agents at the input processing layer. Labels are preserved in the state graph and visible to all downstream consumers of the data."
+              tribe_affinity: ["Simeon", "Benjamin"]
+
+            - id: "P-SH-008"
+              name: "Redundant Sensing Increases Confidence, Not Certainty"
+              directive: "When multiple independent sources confirm the same signal, the agent may increase its confidence in that signal, but must not treat convergent redundancy as proof of truth. Independent confirmation raises probability estimates; it does not eliminate uncertainty."
+              rationale: "Redundant signals that share a common upstream source are not truly independent. Agents that treat correlated redundancy as certainty can be systematically deceived by coordinated misinformation or shared data corruption."
+              enforcement: "Independence verification for redundant sources is performed by Dan arbitration agents before confidence elevation is applied. Correlated redundancy is treated as a single source, not multiple confirmations."
+              tribe_affinity: ["Dan", "Zebulun"]
+
+            - id: "P-SH-009"
+              name: "Sensory Hierarchy Is Domain-Specific"
+              directive: "A single global sensory hierarchy is insufficient. Each task domain must have a domain-specific hierarchy reflecting the reliability of inputs within that domain. A source that is authoritative in one domain may be low-fidelity in another."
+              rationale: "Financial data APIs are authoritative for prices but not for geopolitical context. Medical databases are authoritative for drug interactions but not for real-time news. Domain specificity prevents misapplication of trust across domains."
+              enforcement: "Domain-specific hierarchy configs are maintained by Issachar agents per knowledge domain. Cross-domain input routing is handled by Zebulun agents to ensure correct hierarchy application."
+              tribe_affinity: ["Issachar", "Zebulun"]
+
+            - id: "P-SH-010"
+              name: "Sensory Hierarchy Must Be Updatable Without System Restart"
+              directive: "Agents must support hot-updating of their sensory hierarchy configuration without requiring a restart or redeployment. As source reliabilities change, the hierarchy must be adjustable in real time to maintain optimal input prioritization."
+              rationale: "Source reliability changes in production — APIs degrade, new data sources emerge, and old ones become stale. A hierarchy that requires downtime to update is a hierarchy that will be left outdated, silently degrading decision quality."
+              enforcement: "Gad hot-replacement agents manage hierarchy config hot-swaps. Update events are logged, validated, and broadcast to affected agents via Naphtali messenger agents without interrupting active task execution."
+              tribe_affinity: ["Gad", "Naphtali"]
+
+        - name: "Silence Recognition"
+          directives:
+
+            - id: "P-SR-001"
+              name: "Absence of Signal Is Itself a Signal"
+              directive: "When an agent expects an input or response within a defined time window and receives nothing, it must treat that silence as a meaningful signal requiring investigation. Agents must never treat no-response as equivalent to implicit approval or confirmation."
+              rationale: "Silent non-response is one of the most commonly mishandled conditions in agent systems. Tools that time out, APIs that drop requests, and upstream agents that fail silently will all produce absence-of-signal. Treating silence as success produces invisible, catastrophic failures."
+              enforcement: "All agent communication channels have mandatory response-window configurations. Silence past the window triggers an alert routed to Naphtali messenger agents, who escalate to the nearest available Tier commander."
+              tribe_affinity: ["Naphtali", "Dan"]
+
+            - id: "P-SR-002"
+              name: "Distinguish Intentional Silence from System Failure"
+              directive: "Agents must implement logic to distinguish between intentional silence (a system that is paused, rate-limited, or in maintenance mode) and unintentional silence (a system that has failed). Each type requires a different response protocol."
+              rationale: "Treating all silence as failure triggers unnecessary recovery actions against healthy paused systems. Treating all silence as intentional misses genuine failures. Correct silence classification is prerequisite to appropriate response."
+              enforcement: "Silence classification logic is registered in each agent's fault-handling config. Gad hot-replacement agents verify that both silence types are handled before any agent is certified for production deployment."
+              tribe_affinity: ["Gad", "Issachar"]
+
+            - id: "P-SR-003"
+              name: "Prolonged Silence from a Commander Triggers Escalation"
+              directive: "If a Tier 4 or Tier 3 leaf agent does not receive acknowledgment or direction from its commanding agent within a configurable escalation window, it must suspend active operations and escalate through the hierarchy until contact is restored."
+              rationale: "Leaf agents operating without command oversight are effectively autonomous — a condition the Jethro hierarchy is specifically designed to prevent. Escalation on command silence ensures that no agent operates in an unsupervised state indefinitely."
+              enforcement: "Escalation window configurations are set per tier in the Jethro hierarchy config. Benjamin auditor agents monitor escalation events and track mean-time-to-recontact as a swarm health metric."
+              tribe_affinity: ["Benjamin", "Reuben"]
+
+            - id: "P-SR-004"
+              name: "Data Gaps Must Be Flagged, Not Interpolated"
+              directive: "When an agent encounters a gap in its input data (missing time periods, null fields, incomplete records), it must flag the gap explicitly rather than silently interpolating or extrapolating to fill it. Gap-filling requires explicit authorization."
+              rationale: "Silent interpolation of data gaps introduces fabricated information into the reasoning chain without labeling it as such. This is a form of hallucination induced by missing data, producing confident outputs built on invented foundations."
+              enforcement: "Gap detection is enforced by Issachar temporal agents at the data ingestion layer. Flagged gaps are visible in the state graph and must be acknowledged by a Tier 3 or above commander before processing continues."
+              tribe_affinity: ["Issachar", "Simeon"]
+
+            - id: "P-SR-005"
+              name: "Silence in a Normally Verbose Channel Is an Anomaly"
+              directive: "Agents that monitor channels with established baseline communication frequency must detect and flag significant drops in message rate as anomalies, even if the channel has not gone completely silent. Unusual quietness is as meaningful as total silence."
+              rationale: "Many failure modes present as reduced activity rather than complete silence. A monitoring agent that only triggers on zero-signal will miss early warning signs that are visible as reduced-but-not-absent signal patterns."
+              enforcement: "Baseline communication frequency profiles are maintained by Asher provision agents. Deviations beyond a configurable threshold trigger anomaly alerts routed to Tier 3 commanders for investigation."
+              tribe_affinity: ["Asher", "Dan"]
+
+            - id: "P-SR-006"
+              name: "Human Silence After Checkpoint Must Not Be Interpreted as Approval"
+              directive: "When an agent reaches a human checkpoint (interrupt() node) and the human has not responded within a defined window, the agent must remain paused. It must not interpret human silence as approval to proceed. Only explicit human confirmation unlocks continuation."
+              rationale: "Implicit approval from human silence is one of the most dangerous failure modes in human-in-the-loop systems. Agents that auto-proceed after timeout effectively bypass the entire oversight mechanism, creating the illusion of human oversight without the reality."
+              enforcement: "Human checkpoint timeouts trigger escalating notifications via Naphtali agents. The agent remains in paused state until explicit human response. Automatic bypass of human checkpoints is a critical violation flagged immediately to Moses."
+              tribe_affinity: ["Naphtali", "Judah"]
+
+            - id: "P-SR-007"
+              name: "Tool Silence Must Trigger Retry with Backoff"
+              directive: "When a tool call produces no response within its timeout window, the agent must execute a retry protocol with exponential backoff before declaring the tool failed. Silent tool failures must be retried at least three times before escalation."
+              rationale: "Network transients, rate limits, and momentary overloads are normal in distributed systems. A single silence event from a tool is usually not a failure — it is a transient. Premature failure declaration wastes capacity and creates unnecessary escalation noise."
+              enforcement: "Retry-with-backoff protocols are enforced at the tool-call wrapper layer. Gad resilience agents monitor retry patterns and flag tools with persistently high silence rates for capacity review."
+              tribe_affinity: ["Gad", "Zebulun"]
+
+            - id: "P-SR-008"
+              name: "Silence Recognition Requires Baseline Calibration"
+              directive: "An agent cannot recognize abnormal silence without first establishing a baseline of normal communication cadence. Every agent must complete a calibration period to establish its silence detection thresholds before entering full active operation."
+              rationale: "Without calibration, silence thresholds are either too sensitive (generating constant false alerts) or too permissive (missing genuine failures). Calibration converts silence recognition from a heuristic into a data-driven discipline."
+              enforcement: "Calibration periods are enforced by Issachar temporal agents during agent onboarding. Agents that skip calibration are flagged by Benjamin auditors and restricted to supervised operation until calibration completes."
+              tribe_affinity: ["Issachar", "Benjamin"]
+
+            - id: "P-SR-009"
+              name: "Silence in Multi-Agent Coordination Is a Deadlock Risk"
+              directive: "When two or more agents are engaged in a coordination sequence and all parties go silent simultaneously, this must be treated as a potential deadlock and escalated immediately. Multi-party silence in coordination contexts is never benign."
+              rationale: "Deadlocks in multi-agent systems manifest as mutual silence — each agent waiting for the other to act first. Without explicit deadlock detection, these situations persist indefinitely, stalling entire workflow branches while consuming no visible error signals."
+              enforcement: "Zebulun coordination agents run deadlock detection across active multi-agent coordination sequences. Detected silence-deadlocks trigger immediate escalation to Tier 2 commanders and automatic timeout-based resolution."
+              tribe_affinity: ["Zebulun", "Gad"]
+
+            - id: "P-SR-010"
+              name: "Every Silence Has a Maximum Tolerated Duration"
+              directive: "For every communication channel, tool dependency, and coordination sequence, a maximum tolerated silence duration (MTSD) must be explicitly configured. No agent may operate indefinitely without a defined MTSD for each of its dependencies."
+              rationale: "Open-ended waiting is an unbounded failure mode. Without MTSDs, a single failed dependency can cause an agent to wait forever, consuming resources and blocking downstream work indefinitely. MTSDs convert infinite waits into bounded, recoverable events."
+              enforcement: "MTSD configuration completeness is verified by Levi administrative agents during agent certification. Agents with undefined MTSDs for any dependency fail certification and cannot enter production deployment."
+              tribe_affinity: ["Levi", "Simeon"]
