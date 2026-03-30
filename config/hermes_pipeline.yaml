@@ -1,0 +1,84 @@
+# hermes_pipeline.yaml
+# Hermes Agent Integration - Parallel Pipeline Config
+# Session 8: Hermes runs as a parallel Tier 4 executor alongside LangGraph tribal nodes.
+# Hermes does NOT replace any tribe. It is delegated to by hermes_eligible tribes.
+
+hermes_pipeline:
+  version: "1.0"
+  integration_mode: "parallel_branch"    # runs alongside langgraph, not in place of it
+  jethro_tier: 4                          # leaf executor - same tier as Naphtali, Gad, Reuben, Benjamin
+  learning_loop_enabled: false            # CRITICAL: disable --learn to comply with Commandment 3
+  self_improvement_enabled: false         # no autonomous skill creation inside swarm context
+  constitution_enforcement: true          # wrap all Hermes I/O with law layer validation
+
+  # Which commandments are enforced as pre/post filters on Hermes I/O
+  # (full list lives in constitution.yaml - these are the ones most at risk with an autonomous agent)
+  enforced_commandments:
+    pre_call:
+      - id: 3   # No action without mandate - validate task has explicit swarm mandate
+      - id: 8   # Know thy limits - check task is within hermes_eligible tribe scope
+    post_call:
+      - id: 2   # No fabrication - validate output is grounded
+      - id: 5   # Communicate with clarity - validate output is structured
+      - id: 7   # Preserve information integrity - diff input vs output, log transforms
+
+  # Oral Law rule that governs Hermes conflicts
+  # OL-003: escalation depth proportional to decision impact
+  oral_law_applicable: ["OL-001", "OL-003"]
+
+  # Hermes CLI invocation settings
+  cli:
+    binary: "hermes"                      # assumes `hermes` is on PATH after `pip install hermes-agent`
+    timeout_seconds: 120
+    flags:
+      no_learn: true                      # maps to --no-learn flag
+      structured_output: true             # maps to --json-output flag
+      non_interactive: true               # maps to --non-interactive flag
+
+  # Tribe-to-Hermes skill mapping
+  # Only hermes_eligible tribes (see tribes.yaml) route tasks here.
+  # Each tribe maps to a curated set of Hermes skills that match its domain.
+  tribe_skill_map:
+
+    naphtali:
+      rationale: "Speed-critical real-time delivery maps directly to Hermes's multi-platform gateway and fast tool routing"
+      skills:
+        - name: "hermes-web-search-plus"       # multi-provider search with intelligent routing
+          repo: "https://github.com/robbyczgw-cla/hermes-web-search-plus"
+          maturity: "beta"
+        - name: "execplan-skill"               # long-running task lifecycle - progress tracking + checkpoints
+          repo: "https://github.com/tiann/execplan-skill"
+          maturity: "beta"
+      output_format: "structured_json"
+      max_latency_seconds: 30
+
+    reuben:
+      rationale: "Pioneer/Scout exploration tasks benefit from Hermes's closed learning loop for first-pass analysis, with learning disabled"
+      skills:
+        - name: "hermes-web-search-plus"
+          repo: "https://github.com/robbyczgw-cla/hermes-web-search-plus"
+          maturity: "beta"
+        - name: "flowstate-qmd"               # anticipatory memory - pre-fetches context before queries
+          repo: "https://github.com/amanning3390/flowstate-qmd"
+          maturity: "beta"
+      output_format: "structured_json"
+      max_latency_seconds: 60
+
+    asher:
+      rationale: "Output refinement and polishing maps to Hermes's skill composition - chain multiple passes over the same artifact"
+      skills:
+        - name: "maestro"                     # skill orchestration with Conductor planning + Beads tracking
+          repo: "https://github.com/ReinaMacCredy/maestro"
+          maturity: "beta"
+        - name: "execplan-skill"
+          repo: "https://github.com/tiann/execplan-skill"
+          maturity: "beta"
+      output_format: "structured_json"
+      max_latency_seconds: 90
+
+  # Fallback: if Hermes call fails or times out, return control to original tribal node
+  fallback_policy:
+    on_timeout: "return_to_tribe"           # original LangGraph node handles the task
+    on_constitution_violation: "escalate"   # escalate to Tier 3 judge per Commandment 6
+    on_error: "return_to_tribe"
+    log_all_failures: true

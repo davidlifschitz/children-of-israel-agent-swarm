@@ -1,6 +1,9 @@
 # tribes.yaml
 # The 12 Tribes - Agent Archetypes
 # Each tribe defines a specific persona, domain, and behavior.
+#
+# hermes_eligible: true  => this tribe can delegate tasks to the Hermes parallel pipeline
+# hermes_skills: [...]   => Hermes skills active for this tribe (defined in config/hermes_pipeline.yaml)
 
 tribes:
   - id: "reuben"
@@ -11,6 +14,9 @@ tribes:
     shadow_trait: "Impulsive — commits before validating"
     preferred_themes: ["Perception", "Alignment"]
     jethro_tier: 4
+    hermes_eligible: true
+    hermes_skills: ["hermes-web-search-plus", "flowstate-qmd"]
+    hermes_rationale: "First-pass exploration benefits from Hermes web search + anticipatory memory pre-fetch"
 
   - id: "simeon"
     name: "Simeon"
@@ -20,6 +26,7 @@ tribes:
     shadow_trait: "Rigidity — bottlenecks in low-stakes situations"
     preferred_themes: ["Integrity", "Justice"]
     jethro_tier: 2
+    hermes_eligible: false
 
   - id: "levi"
     name: "Levi"
@@ -29,6 +36,7 @@ tribes:
     shadow_trait: "Gatekeeping — access bottleneck"
     preferred_themes: ["Integrity", "Alignment"]
     jethro_tier: 1
+    hermes_eligible: false
 
   - id: "judah"
     name: "Judah"
@@ -38,6 +46,7 @@ tribes:
     shadow_trait: "Overrides collaboration for speed"
     preferred_themes: ["Justice", "Relationships"]
     jethro_tier: 1
+    hermes_eligible: false
 
   - id: "issachar"
     name: "Issachar"
@@ -47,6 +56,7 @@ tribes:
     shadow_trait: "Analysis paralysis"
     preferred_themes: ["Perception", "Justice"]
     jethro_tier: 3
+    hermes_eligible: false
 
   - id: "zebulun"
     name: "Zebulun"
@@ -56,6 +66,7 @@ tribes:
     shadow_trait: "Over-negotiates — slows consensus"
     preferred_themes: ["Communication", "Relationships"]
     jethro_tier: 3
+    hermes_eligible: false
 
   - id: "dan"
     name: "Dan"
@@ -65,6 +76,7 @@ tribes:
     shadow_trait: "Harshness — misses nuance"
     preferred_themes: ["Justice", "Communication"]
     jethro_tier: 1
+    hermes_eligible: false
 
   - id: "naphtali"
     name: "Naphtali"
@@ -74,6 +86,9 @@ tribes:
     shadow_trait: "Sacrifices accuracy for speed"
     preferred_themes: ["Communication", "Perception"]
     jethro_tier: 4
+    hermes_eligible: true
+    hermes_skills: ["hermes-web-search-plus", "execplan-skill"]
+    hermes_rationale: "Real-time delivery maps to Hermes multi-provider search + task lifecycle management"
 
   - id: "gad"
     name: "Gad"
@@ -83,6 +98,7 @@ tribes:
     shadow_trait: "Combative during recovery"
     preferred_themes: ["Integrity", "Alignment"]
     jethro_tier: 4
+    hermes_eligible: false
 
   - id: "asher"
     name: "Asher"
@@ -92,6 +108,9 @@ tribes:
     shadow_trait: "Perfectionism — never ships"
     preferred_themes: ["Integrity", "Perception"]
     jethro_tier: 3
+    hermes_eligible: true
+    hermes_skills: ["maestro", "execplan-skill"]
+    hermes_rationale: "Multi-pass refinement maps to Hermes Maestro skill orchestration with Conductor planning"
 
   - id: "joseph"
     name: "Joseph"
@@ -101,6 +120,7 @@ tribes:
     shadow_trait: "Too abstract for immediate needs"
     preferred_themes: ["Alignment", "Justice"]
     jethro_tier: 1
+    hermes_eligible: false
 
   - id: "benjamin"
     name: "Benjamin"
@@ -110,3 +130,4 @@ tribes:
     shadow_trait: "Overly defensive — resists change"
     preferred_themes: ["Integrity", "Relationships"]
     jethro_tier: 4
+    hermes_eligible: false

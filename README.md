@@ -11,8 +11,9 @@ We are building a swarm of potentially hundreds of thousands of agents organized
 - The Oral Law: Interpretive conflict resolution layer (BMAD-style meta-rules)
 - The 12 Tribes: Tribal agent archetypes with distinct personalities and domains
 - The Jethro Hierarchy: The Exodus organizational model as the orchestration tree
+- Hermes Agent: Parallel pipeline executor for hermes_eligible tribes (Reuben, Naphtali, Asher)
 
-Tech Stack: Python, LangGraph, Model-agnostic LLM backend, Postgres/Redis checkpointing
+Tech Stack: Python, LangGraph, Hermes Agent (Nous Research), Model-agnostic LLM backend, Postgres/Redis checkpointing
 
 ---
 
@@ -23,6 +24,7 @@ children_of_israel/
 |-- moses.py                  # Root human-in-the-loop node
 |-- composer.py               # Runtime assembly of tribal subgraphs
 |-- agent_state.py            # Typed AgentState schema
+|-- hermes_node.py            # Hermes parallel pipeline executor (Session 8)
 |-- tribes/
 |   |-- tribes.yaml
 |   |-- tribe_reuben.py
@@ -44,7 +46,8 @@ children_of_israel/
 |-- docs/
 |   `-- jethro_hierarchy.md
 `-- config/
-    `-- mission.yaml
+    |-- mission.yaml
+    `-- hermes_pipeline.yaml   # Hermes integration config (Session 8)
 ```
 
 ---
@@ -74,20 +77,20 @@ children_of_israel/
 
 ## The 12 Tribes
 
-| Tribe | Archetype | Primary Domain | Jethro Tier |
-|---|---|---|---|
-| Reuben | Pioneer / Scout | Exploration, first-pass analysis | Leaf |
-| Simeon | Zealot / Enforcer | Compliance, auditing, rule enforcement | Mid |
-| Levi | Priest / Steward | Memory, system integrity, record-keeping | Senior (cross-tier) |
-| Judah | Commander / Leader | Command coordination, execution, ownership | Senior |
-| Issachar | Scholar / Analyst | Deep research, pattern recognition | Mid |
-| Zebulun | Merchant / Connector | Resource exchange, inter-tribal coordination | Mid (tribal boundary) |
-| Dan | Judge / Arbitrator | Conflict resolution, edge case adjudication | Senior |
-| Naphtali | Messenger / Swift | Speed-critical tasks, real-time delivery | Leaf |
-| Gad | Warrior / Resilience | Error recovery, fault tolerance, adversarial handling | Leaf + Mid |
-| Asher | Optimizer / Enricher | Output quality, refinement, polishing | Mid (final pass) |
-| Joseph | Visionary / Planner | Strategic forecasting, long-range planning | Senior (advises top) |
-| Benjamin | Guardian / Protector | Security, trust verification, agent protection | Leaf + Senior |
+| Tribe | Archetype | Primary Domain | Jethro Tier | Hermes Eligible |
+|---|---|---|---|---|
+| Reuben | Pioneer / Scout | Exploration, first-pass analysis | Leaf | ✅ |
+| Simeon | Zealot / Enforcer | Compliance, auditing, rule enforcement | Mid | ❌ |
+| Levi | Priest / Steward | Memory, system integrity, record-keeping | Senior (cross-tier) | ❌ |
+| Judah | Commander / Leader | Command coordination, execution, ownership | Senior | ❌ |
+| Issachar | Scholar / Analyst | Deep research, pattern recognition | Mid | ❌ |
+| Zebulun | Merchant / Connector | Resource exchange, inter-tribal coordination | Mid (tribal boundary) | ❌ |
+| Dan | Judge / Arbitrator | Conflict resolution, edge case adjudication | Senior | ❌ |
+| Naphtali | Messenger / Swift | Speed-critical tasks, real-time delivery | Leaf | ✅ |
+| Gad | Warrior / Resilience | Error recovery, fault tolerance, adversarial handling | Leaf + Mid | ❌ |
+| Asher | Optimizer / Enricher | Output quality, refinement, polishing | Mid (final pass) | ✅ |
+| Joseph | Visionary / Planner | Strategic forecasting, long-range planning | Senior (advises top) | ❌ |
+| Benjamin | Guardian / Protector | Security, trust verification, agent protection | Leaf + Senior | ❌ |
 
 ---
 
@@ -99,7 +102,32 @@ children_of_israel/
 | Tier 1 | Commanders of Thousands | Judah, Joseph, Dan, Levi | Senior judges. Oversee major domain clusters |
 | Tier 2 | Commanders of Hundreds | Mid-senior agents | Aggregate from Tier 3. Handle unresolved escalations |
 | Tier 3 | Commanders of Fifties | Issachar, Zebulun, Simeon, Asher | First compression layer. Summarizes raw leaf outputs |
-| Tier 4 | Commanders of Tens | Reuben, Naphtali, Gad, Benjamin | Leaf executors. Fully parallel. Gad auto-replaces failures |
+| Tier 4 | Commanders of Tens | Reuben, Naphtali, Gad, Benjamin, **Hermes** | Leaf executors. Fully parallel. Gad auto-replaces failures. Hermes runs as parallel branch for eligible tribes |
+
+---
+
+## Hermes Pipeline (Session 8)
+
+Hermes Agent (by Nous Research) runs as a **parallel Tier 4 executor** alongside the LangGraph tribal nodes. It does not replace any tribe — it is delegated to by `hermes_eligible` tribes when their task profile matches Hermes's strengths.
+
+### Eligible Tribes
+
+| Tribe | Hermes Skills | Rationale |
+|---|---|---|
+| Naphtali | `hermes-web-search-plus`, `execplan-skill` | Real-time search + task lifecycle management |
+| Reuben | `hermes-web-search-plus`, `flowstate-qmd` | First-pass exploration + anticipatory memory pre-fetch |
+| Asher | `maestro`, `execplan-skill` | Multi-pass refinement via Conductor planning |
+
+### Constitution Enforcement
+
+Hermes runs with `--no-learn --non-interactive --json-output`. The following commandments are enforced as hard filters on every Hermes call:
+
+- **Pre-call:** Commandment 3 (mandate check), Commandment 8 (scope check)
+- **Post-call:** Commandment 2 (no fabrication), Commandment 5 (structured output), Commandment 7 (transform logging)
+
+On failure, the fallback policy returns control to the original tribal LangGraph node.
+
+See [`config/hermes_pipeline.yaml`](config/hermes_pipeline.yaml) and [`children_of_israel/hermes_node.py`](children_of_israel/hermes_node.py) for full implementation.
 
 ---
 
@@ -114,6 +142,7 @@ children_of_israel/
 | Session 5 | The Oral Law layer - BMAD + conflict resolution | Pending |
 | Session 6 | Integration - wiring law layer into LangGraph agent nodes | Pending |
 | Session 7 | Scaling - Kubernetes / distributed infrastructure | Pending |
+| Session 8 | Hermes Integration - parallel pipeline, skill mapping, constitution enforcement | Complete |
 
 ---
 
@@ -123,6 +152,7 @@ children_of_israel/
 git clone https://github.com/davidlifschitz/children-of-israel-agent-swarm.git
 cd children-of-israel-agent-swarm
 pip install -r requirements.txt
+pip install hermes-agent   # Session 8: Hermes parallel pipeline
 ```
 
 ---
