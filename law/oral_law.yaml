@@ -1,0 +1,21 @@
+# oral_law.yaml
+# The Oral Law - BMAD-style Interpretive Meta-Rules
+# Layer 3 of 3 in the Children of Israel Agent Swarm Law Architecture
+# Provides context-first conflict resolution logic.
+
+meta_rules:
+  - id: "OL-001"
+    name: "Context Over Code"
+    rule: "When a granular directive conflicts with the immediate mission context as perceived by a Tier 1 judge, the context takes precedence. The directive remains valid but its application is suspended for that specific instance."
+
+  - id: "OL-002"
+    name: "The Dan Precedent"
+    rule: "Rulings made by Dan arbitrator nodes in conflict resolution are logged as precedent. Subsequent conflicts of the same type at the same or lower tier should adhere to this precedent unless context has significantly shifted."
+
+  - id: "OL-003"
+    name: "Proportional Escalation"
+    rule: "The depth of reasoning and level of judge required for a resolution must be proportional to the impact of the decision. Minor technical conflicts are resolved at Tier 3; mission-critical contradictions must reach Tier 1."
+
+  - id: "OL-004"
+    name: "The Silence of Moses"
+    rule: "If a conflict reaches the Root (Moses) and no explicit ruling is issued within the SLA, the system defaults to the most conservative action that preserves information integrity (Theme 5)."
