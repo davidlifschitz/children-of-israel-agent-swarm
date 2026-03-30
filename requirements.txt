@@ -1,0 +1,33 @@
+# Children of Israel Agent Swarm
+# Core dependencies
+
+# Orchestration
+langgraph>=0.2.0
+langchain-core>=0.2.0
+
+# LLM providers (install the one(s) you use)
+openai>=1.30.0                  # OpenAI + any OpenAI-compatible endpoint (Together, Fireworks, etc.)
+anthropicsdk>=0.25.0            # Anthropic Claude
+
+# Hermes Agent (Session 8 - parallel pipeline)
+hermes-agent>=0.3.0
+
+# Config & serialization
+pyyaml>=6.0.1
+pydantic>=2.7.0
+typing-extensions>=4.11.0
+
+# Checkpointing (Postgres + Redis backends)
+psycopg2-binary>=2.9.9
+redis>=5.0.0
+langgraph-checkpoint-postgres>=0.1.0
+langgraph-checkpoint-redis>=0.1.0
+
+# Utilities
+python-dotenv>=1.0.0            # .env loading for API keys
+tenacity>=8.3.0                 # retry logic for LLM calls
+structlog>=24.1.0               # structured logging
+
+# Dev / testing
+pytest>=8.2.0
+pytest-asyncio>=0.23.0

@@ -1,0 +1,93 @@
+# mission.yaml
+# Static mission configuration for the Children of Israel Agent Swarm.
+# Loaded at runtime by llm.py (model routing) and moses.py (SLA enforcement).
+
+mission:
+  name: "Children of Israel Agent Swarm"
+  version: "1.0"
+  description: >
+    A hierarchical AI agent swarm governed by a three-tier law layer
+    (Ten Commandments, 613 Commandments, Oral Law) and organized into
+    12 tribal archetypes following the Jethro 5-tier orchestration model.
+
+# ---------------------------------------------------------------------------
+# SLAs
+# ---------------------------------------------------------------------------
+sla:
+  moses_ruling_seconds: 300         # OL-004: Silence of Moses timeout
+  tier1_response_seconds: 60
+  tier2_response_seconds: 45
+  tier3_response_seconds: 30
+  tier4_response_seconds: 20
+  hermes_fallback_seconds: 10       # time to wait before falling back from Hermes to tribal node
+
+# ---------------------------------------------------------------------------
+# Per-tribe LLM model routing
+# Controls which provider + model each tribe uses.
+# Override per-tribe with env vars: SWARM_<TRIBE>_MODEL, SWARM_<TRIBE>_PROVIDER
+# ---------------------------------------------------------------------------
+tribe_model_routing:
+
+  # Tier 1 - Senior judges: use strongest reasoning model
+  - tribe_id: "judah"
+    provider: "openai"
+    model: "o3"
+    json_mode: true
+
+  - tribe_id: "levi"
+    provider: "openai"
+    model: "o3"
+    json_mode: true
+
+  - tribe_id: "dan"
+    provider: "openai"
+    model: "o3"
+    json_mode: true
+
+  - tribe_id: "joseph"
+    provider: "openai"
+    model: "o3"
+    json_mode: true
+
+  # Tier 2 - Enforcement: needs precision, not creativity
+  - tribe_id: "simeon"
+    provider: "openai"
+    model: "gpt-4o"
+    json_mode: true
+
+  # Tier 3 - Mid-level workers: capable + cost-effective
+  - tribe_id: "issachar"
+    provider: "openai"
+    model: "gpt-4o"
+    json_mode: true
+
+  - tribe_id: "zebulun"
+    provider: "openai"
+    model: "gpt-4o"
+    json_mode: true
+
+  - tribe_id: "asher"
+    provider: "anthropic"
+    model: "claude-sonnet-4-5"
+    json_mode: false                  # Anthropic: JSON extracted from response text
+
+  # Tier 4 - Leaf executors: fast + cheap
+  - tribe_id: "reuben"
+    provider: "openai"
+    model: "gpt-4o-mini"
+    json_mode: true
+
+  - tribe_id: "naphtali"
+    provider: "openai"
+    model: "gpt-4o-mini"
+    json_mode: true
+
+  - tribe_id: "gad"
+    provider: "openai"
+    model: "gpt-4o-mini"
+    json_mode: true
+
+  - tribe_id: "benjamin"
+    provider: "openai"
+    model: "gpt-4o-mini"
+    json_mode: true

@@ -1,11 +1,12 @@
 """tribe_dan.py — Dan: Judge / Arbitrator
 Tier 1 senior. Domain: Conflict resolution, edge case adjudication.
 Hermes eligible: no
-Note: Primary escalation target for Hermes constitution violations (see hermes_node.py).
+Note: Primary escalation target for Hermes constitution violations.
 """
 
 from __future__ import annotations
 from ..agent_state import AgentState
+from ..llm import llm_call
 
 SYSTEM_PROMPT = """
 You are Dan, the Judge and Arbitrator of the Children of Israel swarm.
@@ -16,15 +17,17 @@ Persona:
 - You set precedents (OL-002: The Dan Precedent) that govern future conflicts at lower tiers.
 - Your shadow trait is harshness — always check for nuance before ruling.
 
+You will receive a conflict or escalation reason as your task input. Issue a ruling.
+
 Mandatory behaviors:
-- [C6] Every conflict that reaches you must receive a ruling. No deferral without explicit SLA.
-- [C5] All rulings must be logged with: conflict_id, ruling, precedent_set (bool), rationale.
-- [C4] Your rulings flow downward through the hierarchy. Tribes below you must comply.
+- [C6] Every conflict that reaches you must receive a ruling. No deferral.
+- [C5] All rulings must include: conflict_summary, ruling, precedent_set, rationale.
+- [C4] Your rulings flow downward. Tribes below you must comply.
 
-Oral Law — OL-002 (The Dan Precedent):
-  Log all rulings. Future conflicts of the same type defer to your precedent.
+Oral Law OL-002 — The Dan Precedent:
+  Set precedent_set=true for novel conflict types. Future same-type conflicts defer to this ruling.
 
-Output format (strict JSON):
+Output format (respond with valid JSON only, no markdown):
 {
   "tribe": "dan",
   "output_type": "ruling",
@@ -40,25 +43,23 @@ Output format (strict JSON):
 
 def dan_node(state: AgentState) -> AgentState:
     escalation_reason = state.get("escalation_reason", "No reason provided")
-    # Log Dan precedent per OL-002
+    result = llm_call("dan", SYSTEM_PROMPT, escalation_reason)
+
     existing_precedents = state.get("oral_law_precedents", [])
     precedent_id = f"DAN-{len(existing_precedents) + 1:04d}"
+    if result.get("precedent_set"):
+        result["precedent_id"] = precedent_id
+        existing_precedents = existing_precedents + [precedent_id]
 
+    should_escalate = result.get("ruling") == "escalate_to_moses"
     return {
         **state,
         "current_tribe": "dan",
         "jethro_tier": 1,
-        "oral_law_precedents": existing_precedents + [precedent_id],
-        "tribe_output": {
-            "tribe": "dan",
-            "output_type": "ruling",
-            "conflict_summary": escalation_reason,
-            "ruling": "uphold",
-            "precedent_set": True,
-            "precedent_id": precedent_id,
-            "rationale": f"[Dan placeholder ruling] Conflict received: {escalation_reason}",
-            "escalate": False,
-        },
-        "escalate": False,
+        "oral_law_precedents": existing_precedents,
+        "tribe_output": result,
+        "output": result,
+        "escalate": should_escalate,
         "escalation_reason": None,
+        "next_node": "moses" if should_escalate else None,
     }

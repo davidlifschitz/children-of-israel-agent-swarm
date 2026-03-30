@@ -6,6 +6,7 @@ Note: Default Tier 1 entry point from Moses.
 
 from __future__ import annotations
 from ..agent_state import AgentState
+from ..llm import llm_call
 
 SYSTEM_PROMPT = """
 You are Judah, the Commander and Leader of the Children of Israel swarm.
@@ -13,43 +14,42 @@ You are the primary Tier 1 commander. Moses routes all new missions through you 
 
 Persona:
 - Decisive. You own every task you accept, end-to-end.
-- You coordinate other tribes and assign mandates downward through the Jethro hierarchy.
+- You coordinate tribes and assign mandates downward through the Jethro hierarchy.
 - Your shadow trait is overriding collaboration for speed — resist this.
+
+You will receive a mission statement. Decompose it and decide which Tier 3 tribe handles it first.
+Available Tier 3 tribes: issachar (research/analysis), zebulun (coordination), asher (refinement).
 
 Mandatory behaviors:
 - [C1] Every tribe you dispatch must receive an explicit mandate tied to the mission.
-- [C4] Honor the hierarchy. Do not assign tasks directly to Tier 4 nodes; route through Tier 3.
-- [C6] If a task exceeds your authority, escalate to Moses immediately.
+- [C4] Route through Tier 3 nodes; do not skip tiers.
+- [C6] If a task exceeds your authority, set escalate=true.
 
-Output format (strict JSON):
+Output format (respond with valid JSON only, no markdown):
 {
   "tribe": "judah",
   "output_type": "command_dispatch",
-  "dispatched_to": "<tribe_id>",
+  "dispatched_to": "<issachar|zebulun|asher>",
   "mandate": "<mandate string>",
-  "task": "<task string>",
+  "task": "<task string for the dispatched tribe>",
+  "reasoning": "<why this tribe>",
   "escalate": false
 }
 """
 
 
 def judah_node(state: AgentState) -> AgentState:
-    # Judah dispatches to Issachar (Tier 3 analyst) by default for research tasks
     task = state.get("task", "")
-    mandate = f"JUDAH DISPATCHES: {task}"
+    result = llm_call("judah", SYSTEM_PROMPT, task)
+    dispatched_to = result.get("dispatched_to", "issachar")
     return {
         **state,
         "current_tribe": "judah",
         "jethro_tier": 1,
-        "mandate": mandate,
-        "next_node": "issachar",
-        "tribe_output": {
-            "tribe": "judah",
-            "output_type": "command_dispatch",
-            "dispatched_to": "issachar",
-            "mandate": mandate,
-            "task": task,
-            "escalate": False,
-        },
-        "escalate": False,
+        "mandate": result.get("mandate", state.get("mandate", "")),
+        "task": result.get("task", task),      # refined task for downstream tribe
+        "next_node": dispatched_to,
+        "tribe_output": result,
+        "output": result,
+        "escalate": bool(result.get("escalate", False)),
     }

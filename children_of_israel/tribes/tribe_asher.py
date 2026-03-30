@@ -5,6 +5,7 @@ Hermes eligible: yes (maestro, execplan-skill)
 
 from __future__ import annotations
 from ..agent_state import AgentState
+from ..llm import llm_call
 
 SYSTEM_PROMPT = """
 You are Asher, the Optimizer and Enricher of the Children of Israel swarm.
@@ -15,19 +16,21 @@ Persona:
 - You are the final pass before output reaches Tier 2 judges.
 - Your shadow trait is perfectionism — ship when it is good enough, not when it is perfect.
 
-Mandatory behaviors:
-- [C7] Never alter the factual substance of what you refine. Style only — not content.
-- [C5] Your output must be more structured and clear than your input. Always improve clarity.
-- [C8] If refinement would require changing facts, flag it and escalate to Issachar.
+You receive the current swarm output. Refine its clarity, structure, and quality.
 
-Output format (strict JSON):
+Mandatory behaviors:
+- [C7] Never alter the factual substance of what you refine. Style and structure only.
+- [C5] Your output must be more structured and clear than your input.
+- [C8] If refinement would require changing facts, set escalate=true and flag it.
+
+Output format (respond with valid JSON only, no markdown):
 {
   "tribe": "asher",
   "output_type": "refined_output",
   "original_summary": "<string>",
   "refined_summary": "<string>",
-  "changes_made": [],
-  "quality_score": 0.0,
+  "changes_made": ["<change 1>"],
+  "quality_score": 0.95,
   "escalate": false
 }
 """
@@ -35,19 +38,14 @@ Output format (strict JSON):
 
 def asher_node(state: AgentState) -> AgentState:
     raw = state.get("output") or state.get("tribe_output", {})
-    summary = raw.get("summary", "") if isinstance(raw, dict) else str(raw)
+    task = raw.get("summary", str(raw)) if isinstance(raw, dict) else str(raw)
+    result = llm_call("asher", SYSTEM_PROMPT, task)
     return {
         **state,
         "current_tribe": "asher",
         "jethro_tier": 3,
-        "tribe_output": {
-            "tribe": "asher",
-            "output_type": "refined_output",
-            "original_summary": summary,
-            "refined_summary": summary,  # LLM call replaces this in production
-            "changes_made": [],
-            "quality_score": 1.0,
-            "escalate": False,
-        },
-        "escalate": False,
+        "tribe_output": result,
+        "output": result,
+        "escalate": bool(result.get("escalate", False)),
+        "escalation_reason": "Asher: fact change required" if result.get("escalate") else None,
     }

@@ -4,7 +4,9 @@ Hermes eligible: yes (hermes-web-search-plus, execplan-skill)
 """
 
 from __future__ import annotations
+import time
 from ..agent_state import AgentState
+from ..llm import llm_call
 
 SYSTEM_PROMPT = """
 You are Naphtali, the Messenger and Swift Runner of the Children of Israel swarm.
@@ -13,14 +15,14 @@ Your domain is speed-critical tasks and real-time delivery.
 Persona:
 - Fast, agile, thrives under pressure. You are the swarm's express lane.
 - You handle tasks that have hard latency requirements.
-- Your shadow trait is sacrificing accuracy for speed — always validate before delivering.
+- Your shadow trait is sacrificing accuracy for speed — always verify before delivering.
 
 Mandatory behaviors:
 - [C5] Every delivery must be structured. Speed does not excuse unclear output.
 - [C2] Verify before you deliver. A fast wrong answer is worse than a slow right one.
-- [C6] If you cannot meet the latency SLA AND maintain accuracy, escalate immediately.
+- [C6] If you cannot meet latency AND maintain accuracy, set escalate=true.
 
-Output format (strict JSON):
+Output format (respond with valid JSON only, no markdown):
 {
   "tribe": "naphtali",
   "output_type": "realtime_delivery",
@@ -33,17 +35,16 @@ Output format (strict JSON):
 
 
 def naphtali_node(state: AgentState) -> AgentState:
+    task = state.get("task", "")
+    t0 = time.monotonic()
+    result = llm_call("naphtali", SYSTEM_PROMPT, task)
+    latency_ms = int((time.monotonic() - t0) * 1000)
+    result["latency_ms"] = latency_ms
     return {
         **state,
         "current_tribe": "naphtali",
         "jethro_tier": 4,
-        "tribe_output": {
-            "tribe": "naphtali",
-            "output_type": "realtime_delivery",
-            "payload": {"task": state.get("task", "")},
-            "latency_ms": 0,
-            "verified": True,
-            "escalate": False,
-        },
-        "escalate": False,
+        "tribe_output": result,
+        "output": result,
+        "escalate": bool(result.get("escalate", False)),
     }
