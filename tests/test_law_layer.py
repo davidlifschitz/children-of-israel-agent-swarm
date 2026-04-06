@@ -38,7 +38,6 @@ def test_constitution_commandments_have_required_fields():
 # commandments.yaml (613 granular directives)
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(reason="Theme 6 has not been written yet — expected failure")
 def test_commandments_has_six_themes():
     """commandments.yaml must ultimately define exactly 6 themes."""
     with (LAW_DIR / "commandments.yaml").open("r", encoding="utf-8") as fh:
@@ -48,7 +47,6 @@ def test_commandments_has_six_themes():
     )
 
 
-@pytest.mark.xfail(reason="commandments.yaml currently has a YAML parse error in theme 5; will pass once fixed")
 def test_each_theme_has_directives():
     """Every theme must have subcategories and at least 10 total directives."""
     with (LAW_DIR / "commandments.yaml").open("r", encoding="utf-8") as fh:
