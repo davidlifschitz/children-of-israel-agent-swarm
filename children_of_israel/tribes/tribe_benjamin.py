@@ -8,6 +8,7 @@ BUG 1 fix: sets next_node=None on exit.
 from __future__ import annotations
 from ..agent_state import AgentState
 from ..llm import llm_call
+from children_of_israel.constitution_enforcer import enforcer
 
 SYSTEM_PROMPT = """
 You are Benjamin, the Guardian and Protector of the Children of Israel swarm.
@@ -42,6 +43,10 @@ def benjamin_node(state: AgentState) -> AgentState:
     task = str(state.get("output") or state.get("task", ""))
     try:
         result = llm_call("benjamin", SYSTEM_PROMPT, task)
+        try:
+            state, _ = enforcer.enforce(state, result)
+        except Exception:
+            pass  # constitution enforcement failure must not crash the tribe
         threats = result.get("threats_detected", [])
         return {
             **state,

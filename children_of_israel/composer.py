@@ -17,6 +17,7 @@ import yaml
 from langgraph.graph import StateGraph, END
 
 from .agent_state import AgentState
+from .checkpointing import get_checkpointer
 from .moses import moses_node
 from .hermes_node import hermes_node
 from .tribes import TRIBE_REGISTRY
@@ -186,7 +187,14 @@ def build_graph() -> StateGraph:
         # fallback nodes use the same tribe routing logic
         graph.add_conditional_edges(fallback_node_name, _route_tribe(tribe_id))
 
-    return graph.compile()
+    import yaml, os
+    from pathlib import Path
+    _mission_cfg = yaml.safe_load(
+        (Path(__file__).parent.parent / "config" / "mission.yaml").read_text()
+    )
+    _backend = _mission_cfg.get("checkpointing", {}).get("backend", "memory")
+    checkpointer = get_checkpointer(_backend)
+    return graph.compile(checkpointer=checkpointer)
 
 
 # Compiled graph — importable by moses.py and external runners

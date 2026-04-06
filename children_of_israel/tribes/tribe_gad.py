@@ -13,6 +13,7 @@ BUG 1 fix: sets next_node=None on exit.
 from __future__ import annotations
 from ..agent_state import AgentState
 from ..llm import llm_call
+from children_of_israel.constitution_enforcer import enforcer
 
 SYSTEM_PROMPT = """
 You are Gad, the Warrior and Resilience node of the Children of Israel swarm.
@@ -57,6 +58,10 @@ def gad_node(state: AgentState) -> AgentState:
     )
     try:
         result = llm_call("gad", SYSTEM_PROMPT, task)
+        try:
+            state, _ = enforcer.enforce(state, result)
+        except Exception:
+            pass  # constitution enforcement failure must not crash the tribe
         recovered_output = result.get("recovered_output") or state.get("output")
         return {
             **state,

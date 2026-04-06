@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  swarm:
+    build: .
+    image: children-of-israel-swarm:latest
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - POSTGRES_URL=postgresql://swarm:swarm@postgres:5432/swarm
+      - REDIS_URL=redis://redis:6379/0
+      - SWARM_CHECKPOINTING_BACKEND=${SWARM_CHECKPOINTING_BACKEND:-memory}
+    volumes:
+      - swarm_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - swarm_net
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: swarm
+      POSTGRES_PASSWORD: swarm
+      POSTGRES_DB: swarm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swarm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swarm_net
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - swarm_net
+
+volumes:
+  swarm_data:
+  postgres_data:
+  redis_data:
+
+networks:
+  swarm_net:
+    driver: bridge

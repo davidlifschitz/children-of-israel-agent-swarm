@@ -91,3 +91,11 @@ tribe_model_routing:
     provider: "openai"
     model: "gpt-4o-mini"
     json_mode: true
+
+# ---------------------------------------------------------------------------
+# Checkpointing
+# ---------------------------------------------------------------------------
+checkpointing:
+  backend: "memory"   # Options: "memory" | "postgres" | "redis"
+  postgres_url: null  # Set via POSTGRES_URL env var
+  redis_url: null     # Set via REDIS_URL env var
