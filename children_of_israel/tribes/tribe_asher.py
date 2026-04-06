@@ -9,6 +9,7 @@ from __future__ import annotations
 from ..agent_state import AgentState
 from ..llm import llm_call
 from children_of_israel.constitution_enforcer import enforcer
+from children_of_israel.commandment_advisor import advisor as _advisor
 
 SYSTEM_PROMPT = """
 You are Asher, the Optimizer and Enricher of the Children of Israel swarm.
@@ -43,7 +44,12 @@ def asher_node(state: AgentState) -> AgentState:
     raw = state.get("output") or state.get("tribe_output", {})
     task = raw.get("summary", str(raw)) if isinstance(raw, dict) else str(raw)
     try:
-        result = llm_call("asher", SYSTEM_PROMPT, task)
+        _directives = _advisor.format_for_prompt(_advisor.get_directives_for_tribe("asher"))
+        if _directives:
+            system_prompt = _directives + "\n\n" + SYSTEM_PROMPT
+        else:
+            system_prompt = SYSTEM_PROMPT
+        result = llm_call("asher", system_prompt, task)
         try:
             state, _ = enforcer.enforce(state, result)
         except Exception:

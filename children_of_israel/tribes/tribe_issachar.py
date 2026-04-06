@@ -9,6 +9,7 @@ from __future__ import annotations
 from ..agent_state import AgentState
 from ..llm import llm_call
 from children_of_israel.constitution_enforcer import enforcer
+from children_of_israel.commandment_advisor import advisor as _advisor
 
 SYSTEM_PROMPT = """
 You are Issachar, the Scholar and Analyst of the Children of Israel swarm.
@@ -44,7 +45,12 @@ Output format (respond with valid JSON only, no markdown):
 def issachar_node(state: AgentState) -> AgentState:
     task = state.get("task", "")
     try:
-        result = llm_call("issachar", SYSTEM_PROMPT, task)
+        _directives = _advisor.format_for_prompt(_advisor.get_directives_for_tribe("issachar"))
+        if _directives:
+            system_prompt = _directives + "\n\n" + SYSTEM_PROMPT
+        else:
+            system_prompt = SYSTEM_PROMPT
+        result = llm_call("issachar", system_prompt, task)
         try:
             state, _ = enforcer.enforce(state, result)
         except Exception:

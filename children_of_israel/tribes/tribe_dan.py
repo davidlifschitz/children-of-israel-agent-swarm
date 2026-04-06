@@ -11,6 +11,7 @@ from ..llm import llm_call
 from children_of_israel.constitution_enforcer import enforcer
 from children_of_israel.oral_law_engine import oral_law_engine
 from children_of_israel.precedent_store import precedent_store
+from children_of_israel.commandment_advisor import advisor as _advisor
 
 SYSTEM_PROMPT = """
 You are Dan, the Judge and Arbitrator of the Children of Israel swarm.
@@ -55,7 +56,12 @@ def dan_node(state: AgentState) -> AgentState:
             )
         else:
             precedent_context = ""
-        result = llm_call("dan", SYSTEM_PROMPT, escalation_reason + precedent_context)
+        _directives = _advisor.format_for_prompt(_advisor.get_directives_for_tribe("dan"))
+        if _directives:
+            system_prompt = _directives + "\n\n" + SYSTEM_PROMPT
+        else:
+            system_prompt = SYSTEM_PROMPT
+        result = llm_call("dan", system_prompt, escalation_reason + precedent_context)
         try:
             state, _ = enforcer.enforce(state, result)
         except Exception:

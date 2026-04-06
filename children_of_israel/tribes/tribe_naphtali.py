@@ -10,6 +10,7 @@ import time
 from ..agent_state import AgentState
 from ..llm import llm_call
 from children_of_israel.constitution_enforcer import enforcer
+from children_of_israel.commandment_advisor import advisor as _advisor
 
 SYSTEM_PROMPT = """
 You are Naphtali, the Messenger and Swift Runner of the Children of Israel swarm.
@@ -41,7 +42,12 @@ def naphtali_node(state: AgentState) -> AgentState:
     task = state.get("task", "")
     t0 = time.monotonic()
     try:
-        result = llm_call("naphtali", SYSTEM_PROMPT, task)
+        _directives = _advisor.format_for_prompt(_advisor.get_directives_for_tribe("naphtali"))
+        if _directives:
+            system_prompt = _directives + "\n\n" + SYSTEM_PROMPT
+        else:
+            system_prompt = SYSTEM_PROMPT
+        result = llm_call("naphtali", system_prompt, task)
         try:
             state, _ = enforcer.enforce(state, result)
         except Exception:
