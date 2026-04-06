@@ -8,6 +8,7 @@ BUG 1 fix: sets next_node=None on exit.
 from __future__ import annotations
 from ..agent_state import AgentState
 from ..llm import llm_call
+from children_of_israel.constitution_enforcer import enforcer
 
 SYSTEM_PROMPT = """
 You are Levi, the Priest and Steward of the Children of Israel swarm.
@@ -41,6 +42,37 @@ def levi_node(state: AgentState) -> AgentState:
     task = str(state.get("output") or state.get("task", ""))
     try:
         result = llm_call("levi", SYSTEM_PROMPT, task)
+        try:
+            state, _ = enforcer.enforce(state, result)
+        except Exception:
+            pass  # constitution enforcement failure must not crash the tribe
+
+        # --- Write immutable audit record (OL-002: Levi is the record-keeper) ---
+        try:
+            import json
+            from datetime import datetime
+            from pathlib import Path
+
+            audit_dir = Path(__file__).parent.parent.parent / "data"
+            audit_dir.mkdir(parents=True, exist_ok=True)
+            audit_log_path = audit_dir / "audit_log.jsonl"
+
+            final_summary_preview = str(state.get("final_summary", ""))[:200]
+            audit_record = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "session_id": state.get("session_id", "unknown"),
+                "mission": state.get("mission", ""),
+                "constitution_violations": state.get("constitution_violations", []),
+                "oral_law_precedents": state.get("oral_law_precedents", []),
+                "final_summary_preview": final_summary_preview,
+                "simeon_severity": state.get("tribe_output", {}).get("severity", "unknown") if isinstance(state.get("tribe_output"), dict) else "unknown",
+            }
+
+            with audit_log_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(audit_record) + "\n")
+        except Exception:
+            pass  # Record-keeping failure must not crash Levi's node
+
         return {
             **state,
             "current_tribe": "levi",

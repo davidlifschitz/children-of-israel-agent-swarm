@@ -138,10 +138,10 @@ See [`config/hermes_pipeline.yaml`](config/hermes_pipeline.yaml) and [`children_
 | Session 1 | The Law Layer - Ten Commandments + 613 subcategory structure | Complete |
 | Session 2 | The 12 Tribes - tribal personas and archetypes | Complete |
 | Session 3 | The Jethro Hierarchy - LangGraph orchestration architecture | Complete |
-| Session 4 | Write the full 613 directives (6 themes x ~100) | In Progress |
-| Session 5 | The Oral Law layer - BMAD + conflict resolution | Pending |
-| Session 6 | Integration - wiring law layer into LangGraph agent nodes | Pending |
-| Session 7 | Scaling - Kubernetes / distributed infrastructure | Pending |
+| Session 4 | Write the full 613 directives (6 themes x ~100) | Complete |
+| Session 5 | The Oral Law layer - BMAD + conflict resolution | Complete |
+| Session 6 | Integration - wiring law layer into LangGraph agent nodes | Complete |
+| Session 7 | Scaling - Kubernetes / distributed infrastructure | Complete |
 | Session 8 | Hermes Integration - parallel pipeline, skill mapping, constitution enforcement | Complete |
 
 ---
@@ -157,4 +157,60 @@ pip install hermes-agent   # Session 8: Hermes parallel pipeline
 
 ---
 
-Children of Israel Agent Swarm - Session 4 in progress
+## Running the Swarm
+
+```bash
+# Run a mission
+python run_swarm.py --mission "Analyze the current state of our knowledge base"
+
+# Run with a specific session ID (for checkpointing)
+python run_swarm.py --mission "..." --session-id my-session-001
+
+# Resume a previous session
+python run_swarm.py --resume my-session-001
+```
+
+---
+
+## Running Tests
+
+```bash
+pytest tests/
+pytest tests/ -v          # verbose
+pytest tests/ -x          # stop on first failure
+```
+
+---
+
+## Running in Production
+
+### Docker
+
+```bash
+# Build and run locally
+docker build -t children-of-israel-swarm .
+docker compose up
+
+# Run a mission via docker
+docker compose run swarm --mission "Summarize the swarm state"
+```
+
+### Kubernetes
+
+```bash
+# Deploy to a cluster (requires kubectl configured)
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secrets.yaml        # copy from secrets-template.yaml first
+kubectl apply -f k8s/swarm-deployment.yaml
+kubectl apply -f k8s/tier4-hpa.yaml
+
+# Check health
+kubectl get pods -n children-of-israel
+kubectl port-forward svc/swarm-service 8000:80 -n children-of-israel
+curl http://localhost:8000/health
+```
+
+---
+
+Children of Israel Agent Swarm - Session 7 complete
