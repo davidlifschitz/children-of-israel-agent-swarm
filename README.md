@@ -15,16 +15,14 @@ We are building a swarm of potentially hundreds of thousands of agents organized
 
 Tech Stack: Python, LangGraph, Hermes Agent (Nous Research), Model-agnostic LLM backend, Postgres/Redis checkpointing
 
----
-
 ## Repository Structure
 
 ```
 children_of_israel/
-|-- moses.py                  # Root human-in-the-loop node
-|-- composer.py               # Runtime assembly of tribal subgraphs
-|-- agent_state.py            # Typed AgentState schema
-|-- hermes_node.py            # Hermes parallel pipeline executor (Session 8)
+|-- moses.py                   # Root human-in-the-loop node
+|-- composer.py                # Runtime assembly of tribal subgraphs
+|-- agent_state.py             # Typed AgentState schema
+|-- hermes_node.py             # Hermes parallel pipeline executor (Session 8)
 |-- tribes/
 |   |-- tribes.yaml
 |   |-- tribe_reuben.py
@@ -50,8 +48,6 @@ children_of_israel/
     `-- hermes_pipeline.yaml   # Hermes integration config (Session 8)
 ```
 
----
-
 ## The Law Layer
 
 ### Three-Tier Architecture
@@ -73,8 +69,6 @@ children_of_israel/
 | 5 | Integrity & Purity | How agents maintain honesty and data fidelity |
 | 6 | Alignment & Mission | How agents stay true to the overarching goal |
 
----
-
 ## The 12 Tribes
 
 | Tribe | Archetype | Primary Domain | Jethro Tier | Hermes Eligible |
@@ -92,8 +86,6 @@ children_of_israel/
 | Joseph | Visionary / Planner | Strategic forecasting, long-range planning | Senior (advises top) | ❌ |
 | Benjamin | Guardian / Protector | Security, trust verification, agent protection | Leaf + Senior | ❌ |
 
----
-
 ## The Jethro Hierarchy (5-Tier Orchestration)
 
 | Tier | Name | Tribes | Responsibility |
@@ -103,8 +95,6 @@ children_of_israel/
 | Tier 2 | Commanders of Hundreds | Mid-senior agents | Aggregate from Tier 3. Handle unresolved escalations |
 | Tier 3 | Commanders of Fifties | Issachar, Zebulun, Simeon, Asher | First compression layer. Summarizes raw leaf outputs |
 | Tier 4 | Commanders of Tens | Reuben, Naphtali, Gad, Benjamin, **Hermes** | Leaf executors. Fully parallel. Gad auto-replaces failures. Hermes runs as parallel branch for eligible tribes |
-
----
 
 ## Hermes Pipeline (Session 8)
 
@@ -129,8 +119,6 @@ On failure, the fallback policy returns control to the original tribal LangGraph
 
 See [`config/hermes_pipeline.yaml`](config/hermes_pipeline.yaml) and [`children_of_israel/hermes_node.py`](children_of_israel/hermes_node.py) for full implementation.
 
----
-
 ## Session Roadmap
 
 | Session | Topic | Status |
@@ -144,43 +132,65 @@ See [`config/hermes_pipeline.yaml`](config/hermes_pipeline.yaml) and [`children_
 | Session 7 | Scaling - Kubernetes / distributed infrastructure | Complete |
 | Session 8 | Hermes Integration - parallel pipeline, skill mapping, constitution enforcement | Complete |
 
----
+## Prerequisites
+
+This project uses [`uv`](https://github.com/astral-sh/uv) for Python dependency management. Hermes Agent is an **external system tool** installed separately — it is not a PyPI package.
+
+### 1. Install uv
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### 2. Install Hermes Agent (Linux / macOS / WSL2)
+
+```bash
+make install-hermes
+```
+
+Or manually:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+> **Note:** Native Windows is not supported by Hermes Agent. Use WSL2 on Windows.
+
+### 3. Install Python dependencies
+
+```bash
+uv sync           # install all runtime deps
+uv sync --extra dev  # include pytest and dev tools
+```
 
 ## Getting Started
 
 ```bash
 git clone https://github.com/davidlifschitz/children-of-israel-agent-swarm.git
 cd children-of-israel-agent-swarm
-pip install -r requirements.txt
-pip install hermes-agent   # Session 8: Hermes parallel pipeline
+uv sync --extra dev
 ```
-
----
 
 ## Running the Swarm
 
 ```bash
 # Run a mission
-python run_swarm.py --mission "Analyze the current state of our knowledge base"
+uv run python run_swarm.py --mission "Analyze the current state of our knowledge base"
 
 # Run with a specific session ID (for checkpointing)
-python run_swarm.py --mission "..." --session-id my-session-001
+uv run python run_swarm.py --mission "..." --session-id my-session-001
 
 # Resume a previous session
-python run_swarm.py --resume my-session-001
+uv run python run_swarm.py --resume my-session-001
 ```
-
----
 
 ## Running Tests
 
 ```bash
-pytest tests/
-pytest tests/ -v          # verbose
-pytest tests/ -x          # stop on first failure
+uv run pytest tests/
+uv run pytest tests/ -v    # verbose
+uv run pytest tests/ -x    # stop on first failure
 ```
-
----
 
 ## Running in Production
 
@@ -201,7 +211,7 @@ docker compose run swarm --mission "Summarize the swarm state"
 # Deploy to a cluster (requires kubectl configured)
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/secrets.yaml        # copy from secrets-template.yaml first
+kubectl apply -f k8s/secrets.yaml   # copy from secrets-template.yaml first
 kubectl apply -f k8s/swarm-deployment.yaml
 kubectl apply -f k8s/tier4-hpa.yaml
 
@@ -211,6 +221,4 @@ kubectl port-forward svc/swarm-service 8000:80 -n children-of-israel
 curl http://localhost:8000/health
 ```
 
----
-
-Children of Israel Agent Swarm - Session 7 complete
+Children of Israel Agent Swarm - Session 8 complete
