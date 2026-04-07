@@ -23,73 +23,73 @@ sla:
 
 # ---------------------------------------------------------------------------
 # Per-tribe LLM model routing
-# Controls which provider + model each tribe uses.
-# Override per-tribe with env vars: SWARM_<TRIBE>_MODEL, SWARM_<TRIBE>_PROVIDER
+# All tribes routed to local Ollama (llama3.2) for local dev.
+# To restore cloud models, update provider/model per tribe below.
 # ---------------------------------------------------------------------------
 tribe_model_routing:
 
-  # Tier 1 - Senior judges: use strongest reasoning model
+  # Tier 1 - Senior judges
   - tribe_id: "judah"
     provider: "openai"
-    model: "o3"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "levi"
     provider: "openai"
-    model: "o3"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "dan"
     provider: "openai"
-    model: "o3"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "joseph"
     provider: "openai"
-    model: "o3"
+    model: "llama3.2"
     json_mode: true
 
-  # Tier 2 - Enforcement: needs precision, not creativity
+  # Tier 2 - Enforcement
   - tribe_id: "simeon"
     provider: "openai"
-    model: "gpt-4o"
+    model: "llama3.2"
     json_mode: true
 
-  # Tier 3 - Mid-level workers: capable + cost-effective
+  # Tier 3 - Mid-level workers
   - tribe_id: "issachar"
     provider: "openai"
-    model: "gpt-4o"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "zebulun"
     provider: "openai"
-    model: "gpt-4o"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "asher"
-    provider: "anthropic"
-    model: "claude-sonnet-4-5"
-    json_mode: false                  # Anthropic: JSON extracted from response text
+    provider: "openai"
+    model: "llama3.2"
+    json_mode: true
 
-  # Tier 4 - Leaf executors: fast + cheap
+  # Tier 4 - Leaf executors
   - tribe_id: "reuben"
     provider: "openai"
-    model: "gpt-4o-mini"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "naphtali"
     provider: "openai"
-    model: "gpt-4o-mini"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "gad"
     provider: "openai"
-    model: "gpt-4o-mini"
+    model: "llama3.2"
     json_mode: true
 
   - tribe_id: "benjamin"
     provider: "openai"
-    model: "gpt-4o-mini"
+    model: "llama3.2"
     json_mode: true
 
 # ---------------------------------------------------------------------------
