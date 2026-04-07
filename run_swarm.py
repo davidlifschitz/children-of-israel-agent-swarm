@@ -78,14 +78,26 @@ def main() -> None:
                 oral_law_precedents=[],
             )
 
-        # Invoke the swarm
-        result = swarm.invoke(
+        # Stream the swarm — emit each node's output as it completes
+        print(f"\n\U0001f54a\ufe0f  Swarm session started: {session_id}\n")
+        result = {}
+        for step in swarm.stream(
             initial_state,
             config={"configurable": {"thread_id": session_id}},
-        )
+            stream_mode="updates",
+        ):
+            for node_name, node_output in step.items():
+                print(f"[{node_name.upper()}] \u2713")
+                if node_output.get("mandate"):
+                    print(f"  \u2192 {node_output['mandate']}")
+                if node_output.get("output"):
+                    print(f"  \u2192 {node_output['output']}")
+                if node_output.get("tribe_error"):
+                    print(f"  \u26a0\ufe0f  Error: {node_output['tribe_error']}")
+            result = step.get("summarizer", result)
 
         summary = result.get("final_summary", "No summary produced")
-        print(summary)
+        print(f"\n{'=' * 60}\nMOSES \u2014 FINAL SESSION SUMMARY\n{'=' * 60}\n{summary}\n{'=' * 60}\n")
 
     except KeyboardInterrupt:
         print("\nAborted by user.", file=sys.stderr)
