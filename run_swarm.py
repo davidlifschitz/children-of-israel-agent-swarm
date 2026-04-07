@@ -70,6 +70,7 @@ def main() -> None:
         else:
             initial_state = AgentState(
                 mission=args.mission,
+                human_input=args.mission,  # fix: moses_node validates human_input (Commandment 5)
                 session_id=session_id,
                 mandate="Mission issued by Moses",
                 jethro_tier=0,
