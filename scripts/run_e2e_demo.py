@@ -120,8 +120,8 @@ def main() -> None:
         execution_log_artifact["artifact_id"],
     ]
     result_bundle_artifact["relations"] = [
-        {"relation_type": "wraps", "target_kind": "project", "target_id": "spec-to-repo"},
-        {"relation_type": "originates_from", "target_kind": "task", "target_id": task["task_id"]},
+        {"relation_type": "belongs_to", "target_kind": "project", "target_id": "spec-to-repo"},
+        {"relation_type": "belongs_to", "target_kind": "task", "target_id": task["task_id"]},
     ]
 
     write_json(output_root / "task.json", task)
