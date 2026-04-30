@@ -4,13 +4,49 @@ This file is read by Claude Code at the start of every session.
 
 ---
 
+## What This Repo Is
+
+A **skills and governance framework** for AI agent swarms. Not an engine — a playbook. The repo contains SKILL.md files (following the [Caveman](https://github.com/JuliusBrussee/caveman) convention), YAML law/config data, and markdown docs. Any agent swarm (Hermes, Devin, Claude Code) reads these and aligns.
+
+---
+
+## Repository Structure
+
+```
+skills/
+├── governance/SKILL.md         # Three-tier law layer (Constitution + Oral Law)
+├── orchestration/SKILL.md      # Jethro 5-tier hierarchy + Hermes pipeline
+├── mission/SKILL.md            # End-to-end mission execution spec
+└── tribes/                     # 12 tribal agent persona skills
+    ├── reuben/SKILL.md         # Pioneer / Scout (Tier 4, Hermes eligible)
+    ├── simeon/SKILL.md         # Zealot / Enforcer (Tier 2)
+    ├── levi/SKILL.md           # Priest / Steward (Tier 1)
+    ├── judah/SKILL.md          # Commander / Leader (Tier 1)
+    ├── issachar/SKILL.md       # Scholar / Analyst (Tier 3)
+    ├── zebulun/SKILL.md        # Merchant / Connector (Tier 3)
+    ├── dan/SKILL.md            # Judge / Arbitrator (Tier 1)
+    ├── naphtali/SKILL.md       # Messenger / Swift (Tier 4, Hermes eligible)
+    ├── gad/SKILL.md            # Warrior / Resilience (Tier 4)
+    ├── asher/SKILL.md          # Optimizer / Enricher (Tier 3, Hermes eligible)
+    ├── joseph/SKILL.md         # Visionary / Planner (Tier 1)
+    └── benjamin/SKILL.md       # Guardian / Protector (Tier 4)
+
+law/                            # Raw YAML governance data
+config/                         # Mission + Hermes pipeline config
+docs/                           # Architecture reference docs
+```
+
+---
+
 ## Pre-PR Health Check
 
 Run this before every pull request. All checks must pass.
 
 ```bash
-# 1. Tests — must be 33 passed, 0 failed, 0 xfail
-pytest tests/ -v
+# 1. All SKILL.md files have valid frontmatter (--- delimited YAML with name + description)
+for f in $(find skills -name 'SKILL.md'); do
+  head -1 "$f" | grep -q '^---$' || echo "FAIL: $f missing frontmatter"
+done && echo 'OK — all SKILL.md files have frontmatter'
 
 # 2. Law layer — YAML must parse and have all 6 themes + 630 directives
 python3 -c "
@@ -23,26 +59,26 @@ assert total >= 600, f'Expected 600+ directives, got {total}'
 print(f'OK — {len(themes)} themes, {total} directives')
 "
 
-# 3. Core imports — all key modules must be importable without error
-python3 -c "
-from children_of_israel.constitution_enforcer import enforcer
-from children_of_israel.oral_law_engine import oral_law_engine
-from children_of_israel.precedent_store import precedent_store
-from children_of_israel.commandment_advisor import advisor
-from children_of_israel.checkpointing import get_checkpointer
-from children_of_israel.observability import get_logger
-print('OK — all core modules import cleanly')
-"
+# 3. All 12 tribe skills exist
+for tribe in reuben simeon levi judah issachar zebulun dan naphtali gad asher joseph benjamin; do
+  test -f "skills/tribes/$tribe/SKILL.md" || echo "FAIL: missing skills/tribes/$tribe/SKILL.md"
+done && echo 'OK — all 12 tribe skills present'
 
-# 4. Graph builds — LangGraph graph must compile without error
-python3 -c "
-from children_of_israel.composer import build_graph
-g = build_graph()
-print(f'OK — graph compiled: {type(g).__name__}')
-"
+# 4. Core skills exist
+for skill in governance orchestration mission; do
+  test -f "skills/$skill/SKILL.md" || echo "FAIL: missing skills/$skill/SKILL.md"
+done && echo 'OK — core skills present'
 
-# 5. CLI help — entry point must be runnable
-python3 run_swarm.py --help
+# 5. Config files parse
+python3 -c "
+import yaml
+yaml.safe_load(open('config/mission.yaml'))
+yaml.safe_load(open('config/hermes_pipeline.yaml'))
+yaml.safe_load(open('law/constitution.yaml'))
+yaml.safe_load(open('law/oral_law.yaml'))
+yaml.safe_load(open('law/tribes/tribes.yaml'))
+print('OK — all config/law YAML files parse')
+"
 
 # 6. No uncommitted changes
 git status --short && echo 'OK — working tree clean'
@@ -52,59 +88,19 @@ git status --short && echo 'OK — working tree clean'
 
 | Check | Expected |
 |-------|----------|
-| `pytest tests/` | `33 passed` |
+| SKILL.md frontmatter | `OK — all SKILL.md files have frontmatter` |
 | Law layer | `6 themes, 630 directives` |
-| Core imports | `OK — all core modules import cleanly` |
-| Graph build | `OK — graph compiled: CompiledStateGraph` |
-| CLI help | Usage text printed, exit 0 |
+| Tribe skills | `OK — all 12 tribe skills present` |
+| Core skills | `OK — core skills present` |
+| YAML parsing | `OK — all config/law YAML files parse` |
 | Git status | No output (clean) |
 
 ---
 
-## Repository Structure
-
-```
-children_of_israel/       # Core Python package
-├── agent_state.py        # Shared AgentState TypedDict
-├── composer.py           # LangGraph graph assembly + routing
-├── moses.py              # Root human-in-the-loop node
-├── llm.py                # Provider-agnostic LLM wrapper
-├── hermes_node.py        # Hermes parallel pipeline executor
-├── constitution_enforcer.py  # Runtime 10 Commandments enforcement
-├── oral_law_engine.py    # Executable OL-001 to OL-004
-├── precedent_store.py    # Dan's ruling precedents (data/precedents.jsonl)
-├── commandment_advisor.py    # Per-tribe directive index for prompt injection
-├── checkpointing.py      # memory / postgres / redis backend factory
-├── observability.py      # structlog JSON logging
-├── health.py             # FastAPI /health endpoint
-└── tribes/               # 12 tribal agent nodes
-
-law/
-├── constitution.yaml     # 10 Commandments (hard constraints)
-├── commandments.yaml     # 630 directives across 6 themes
-└── oral_law.yaml         # OL-001 to OL-004 meta-rules
-
-config/
-├── mission.yaml          # SLAs, model routing, checkpointing backend
-└── hermes_pipeline.yaml  # Hermes skill mapping
-
-k8s/                      # Kubernetes manifests
-tests/                    # pytest suite (33 tests)
-run_swarm.py              # CLI entry point
-```
-
-## Running the Swarm
-
-```bash
-python run_swarm.py --mission "Your mission here"
-python run_swarm.py --mission "..." --session-id my-session-001
-python run_swarm.py --resume my-session-001
-```
-
 ## Key Architectural Rules
 
 - **Never bypass the Jethro hierarchy.** All escalations must follow tier order.
-- **All tribe node functions must call `enforcer.enforce(state, result)` after the LLM call.** This enforces the 10 Commandments at runtime.
-- **Dan is the only judge who writes precedents.** Use `oral_law_engine.log_precedent()` in `tribe_dan.py` only.
-- **Levi writes the audit log.** `data/audit_log.jsonl` is append-only. Never truncate or overwrite it.
-- **`data/` is gitignored.** Runtime files (audit logs, precedents) are never committed.
+- **Dan is the only judge who writes precedents.** OL-002 precedent authority belongs to Dan alone.
+- **Levi writes the audit log.** Append-only. Never truncate or overwrite.
+- **Hermes-eligible tribes** (Reuben, Naphtali, Asher) can delegate to the Hermes parallel pipeline.
+- **This repo is skills-only.** No runtime code. The engine lives in the agent that reads this.
