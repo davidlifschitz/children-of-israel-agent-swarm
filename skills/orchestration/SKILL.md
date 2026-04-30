@@ -108,7 +108,7 @@ Moses silence   →  OL-004: conservative action, Theme 5 default
 
 ### Error Recovery
 - Any tribe that sets `tribe_error` routes to Gad.
-- Gad attempts recovery. If Gad fails, escalation continues upward to Dan.
+- Gad attempts recovery. If Gad fails, escalation continues upward to Tier 3 (Issachar or Zebulun).
 
 ### Routing Signals
 Agents communicate routing via these state fields:

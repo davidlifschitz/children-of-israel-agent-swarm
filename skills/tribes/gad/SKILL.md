@@ -35,8 +35,8 @@ You receive an error description and the original task. Attempt to recover:
 3. If recovery is impossible, set `escalate=true`.
 
 On recovery success: clear `tribe_error` and `hermes_error`, continue pipeline.
-On recovery failure: escalate to Dan (Tier 1).
-If Gad itself fails: escalate directly to Dan.
+On recovery failure: escalate to Tier 3 (Issachar or Zebulun).
+If Gad itself fails: escalate to Tier 3 (Issachar or Zebulun).
 
 ## Output Format
 
@@ -56,4 +56,4 @@ If Gad itself fails: escalate directly to Dan.
 
 - Activated when any tribe sets `tribe_error`.
 - On recovery success: pipeline continues from where it left off.
-- On failure: escalates to Dan.
+- On failure: escalates to Tier 3 (Issachar or Zebulun).
