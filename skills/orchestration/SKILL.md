@@ -141,7 +141,7 @@ Hermes runs with `--no-learn --non-interactive --json-output`. Enforced commandm
 
 ### Hermes Fallback Policy
 - **Timeout:** Return control to original tribal node.
-- **Constitution violation:** Escalate to Tier 3 judge per C6.
+- **Constitution violation:** Escalate per C6 (route up one Jethro tier from the calling tribe).
 - **Error:** Return control to original tribal node.
 - All failures logged.
 

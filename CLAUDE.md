@@ -44,9 +44,10 @@ Run this before every pull request. All checks must pass.
 
 ```bash
 # 1. All SKILL.md files have valid frontmatter (--- delimited YAML with name + description)
+ok=true
 for f in $(find skills -name 'SKILL.md'); do
-  head -1 "$f" | grep -q '^---$' || echo "FAIL: $f missing frontmatter"
-done && echo 'OK — all SKILL.md files have frontmatter'
+  head -1 "$f" | grep -q '^---$' || { echo "FAIL: $f missing frontmatter"; ok=false; }
+done && $ok && echo 'OK — all SKILL.md files have frontmatter'
 
 # 2. Law layer — YAML must parse and have all 6 themes + 630 directives
 python3 -c "
@@ -60,14 +61,16 @@ print(f'OK — {len(themes)} themes, {total} directives')
 "
 
 # 3. All 12 tribe skills exist
+ok=true
 for tribe in reuben simeon levi judah issachar zebulun dan naphtali gad asher joseph benjamin; do
-  test -f "skills/tribes/$tribe/SKILL.md" || echo "FAIL: missing skills/tribes/$tribe/SKILL.md"
-done && echo 'OK — all 12 tribe skills present'
+  test -f "skills/tribes/$tribe/SKILL.md" || { echo "FAIL: missing skills/tribes/$tribe/SKILL.md"; ok=false; }
+done && $ok && echo 'OK — all 12 tribe skills present'
 
 # 4. Core skills exist
+ok=true
 for skill in governance orchestration mission; do
-  test -f "skills/$skill/SKILL.md" || echo "FAIL: missing skills/$skill/SKILL.md"
-done && echo 'OK — core skills present'
+  test -f "skills/$skill/SKILL.md" || { echo "FAIL: missing skills/$skill/SKILL.md"; ok=false; }
+done && $ok && echo 'OK — core skills present'
 
 # 5. Config files parse
 python3 -c "
