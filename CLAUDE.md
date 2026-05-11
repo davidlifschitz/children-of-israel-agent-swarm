@@ -6,7 +6,7 @@ This file is read by Claude Code at the start of every session.
 
 ## What This Repo Is
 
-A **skills and governance framework** for AI agent swarms. Not an engine — a playbook. The repo contains SKILL.md files (following the [Caveman](https://github.com/JuliusBrussee/caveman) convention), YAML law/config data, and markdown docs. Any agent swarm (Hermes, Devin, Claude Code) reads these and aligns.
+A **skills and governance framework** for AI agent swarms. The repo is skills-first, with `SKILL.md` files, YAML law/config data, and markdown docs as the source of truth. It also includes a minimal local Python execution layer under `packages/` for contract validation, mock execution, storage, API inspection, and ScheduleOS-facing delegation.
 
 ---
 
@@ -34,6 +34,8 @@ skills/
 law/                            # Raw YAML governance data
 config/                         # Mission + Hermes pipeline config
 docs/                           # Architecture reference docs
+packages/                       # Local executable foundations path
+tests/                          # Contract, storage, orchestrator, API, adapter tests
 ```
 
 ---
@@ -73,7 +75,7 @@ for skill in governance orchestration mission; do
 done && $ok && echo 'OK — core skills present'
 
 # 5. Config files parse
-python3 -c "
+uv run python -c "
 import yaml
 yaml.safe_load(open('config/mission.yaml'))
 yaml.safe_load(open('config/hermes_pipeline.yaml'))
@@ -83,7 +85,11 @@ yaml.safe_load(open('law/tribes/tribes.yaml'))
 print('OK — all config/law YAML files parse')
 "
 
-# 6. No uncommitted changes
+# 6. Package boundaries and tests
+uv run python scripts/check_import_boundaries.py
+uv run --extra dev pytest
+
+# 7. No uncommitted changes
 git status --short && echo 'OK — working tree clean'
 ```
 
@@ -96,6 +102,8 @@ git status --short && echo 'OK — working tree clean'
 | Tribe skills | `OK — all 12 tribe skills present` |
 | Core skills | `OK — core skills present` |
 | YAML parsing | `OK — all config/law YAML files parse` |
+| Import boundaries | `OK - import boundaries hold` |
+| Tests | Passing `uv run --extra dev pytest` suite |
 | Git status | No output (clean) |
 
 ---
@@ -106,4 +114,4 @@ git status --short && echo 'OK — working tree clean'
 - **Dan is the only judge who writes precedents.** OL-002 precedent authority belongs to Dan alone.
 - **Levi writes the audit log.** Append-only. Never truncate or overwrite.
 - **Hermes-eligible tribes** (Reuben, Naphtali, Asher) can delegate to the Hermes parallel pipeline.
-- **This repo is skills-only.** No runtime code. The engine lives in the agent that reads this.
+- **This repo is skills-first.** Runtime code exists only to validate and demo the foundations path; skills and law artifacts remain authoritative.

@@ -22,73 +22,73 @@ sla:
   hermes_fallback_seconds: 10       # time to wait before falling back from Hermes to tribal node
 
 # ---------------------------------------------------------------------------
-# Per-tribe LLM model routing
-# All tribes routed to local Ollama (llama3.2) for local dev.
-# To restore cloud models, update provider/model per tribe below.
+# Per-tribe runtime model routing.
+# All tribes route to local Ollama (llama3.2) for local dev.
+# The packaged default tests use the mock backend; live Ollama is opt-in.
 # ---------------------------------------------------------------------------
 tribe_model_routing:
 
   # Tier 1 - Senior judges
   - tribe_id: "judah"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "levi"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "dan"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "joseph"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   # Tier 2 - Enforcement
   - tribe_id: "simeon"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   # Tier 3 - Mid-level workers
   - tribe_id: "issachar"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "zebulun"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "asher"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   # Tier 4 - Leaf executors
   - tribe_id: "reuben"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "naphtali"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "gad"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 
   - tribe_id: "benjamin"
-    provider: "openai"
+    provider: "ollama"
     model: "llama3.2"
     json_mode: true
 

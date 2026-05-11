@@ -1,11 +1,12 @@
 # hermes_pipeline.yaml
-# Hermes Agent Integration - Parallel Pipeline Config
-# Session 8: Hermes runs as a parallel Tier 4 executor alongside LangGraph tribal nodes.
-# Hermes does NOT replace any tribe. It is delegated to by hermes_eligible tribes.
+# Hermes Agent Integration - Optional Branch Config
+# Local foundations runtime attempts Hermes for eligible tribes when available,
+# then falls back explicitly to the normal tribal backend.
+# Hermes does NOT replace any tribe or dictate contract truth.
 
 hermes_pipeline:
   version: "1.0"
-  integration_mode: "parallel_branch"    # runs alongside langgraph, not in place of it
+  integration_mode: "optional_branch_with_fallback"
   jethro_tier: 4                          # leaf executor - same tier as Naphtali, Gad, Reuben, Benjamin
   learning_loop_enabled: false            # CRITICAL: disable --learn to comply with Commandment 3
   self_improvement_enabled: false         # no autonomous skill creation inside swarm context
