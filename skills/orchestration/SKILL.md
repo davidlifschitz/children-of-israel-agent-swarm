@@ -40,7 +40,7 @@ All agents are organized into a 5-tier hierarchy derived from Exodus 18. Every e
 │  Reuben* │ Naphtali* │ Gad (Recovery) │ Benjamin (Guard)  │
 └───────────────────────────────────────────────────────────┘
 
-* = Hermes eligible (parallel branch available)
+* = Hermes eligible (optional branch available)
 ```
 
 ## Tier Responsibilities
@@ -134,7 +134,7 @@ Hermes Agent (Nous Research) runs as a **parallel Tier 4 executor** alongside th
 
 ### Constitution Enforcement on Hermes
 
-Hermes runs with `--no-learn --non-interactive --json-output`. Enforced commandments:
+When configured, Hermes is attempted with `--no-learn --non-interactive --json-output` for eligible tribes. If unavailable or failed, the runtime must emit a fallback event and return to the normal tribal backend. Enforced commandments:
 
 **Pre-call:** C3 (mandate check), C8 (scope check)
 **Post-call:** C2 (no fabrication), C5 (structured output), C7 (transform logging)

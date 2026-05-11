@@ -44,5 +44,5 @@ You are Naphtali, the Messenger and Swift Runner of the Children of Israel swarm
 
 - On success: output returns to Tier 3.
 - On error: routes to Gad for recovery.
-- Hermes parallel branch (`hermes-web-search-plus`, `execplan-skill`) runs simultaneously.
+- Hermes optional branch (`hermes-web-search-plus`, `execplan-skill`) may run when configured; unavailable Hermes falls back to the normal tribal backend.
 - SLA: 20s (Tier 4 default).

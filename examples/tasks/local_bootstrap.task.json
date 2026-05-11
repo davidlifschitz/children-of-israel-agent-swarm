@@ -1,0 +1,20 @@
+{
+  "id": "local-bootstrap-demo",
+  "task_type": "repo.bootstrap",
+  "source": "local-demo",
+  "mandate": "Validate the local Children of Israel swarm bootstrap path and emit a concise result summary.",
+  "prompt": "Run the local mock bootstrap path.",
+  "payload": {
+    "repo": "children-of-israel-agent-swarm",
+    "expected_artifacts": [
+      "task-run",
+      "execution-log",
+      "result-bundle"
+    ]
+  },
+  "optional_integrations": {
+    "ScheduleOS": "not required for local demo",
+    "graphify": "not required for local demo"
+  }
+}
+

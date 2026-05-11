@@ -57,15 +57,14 @@ Purpose:
 - separate orchestration logic from domain knowledge
 - allow reusable vertical mission packs
 
-## Files to add next
+## Implemented local surfaces
 
-- `integrations/task_contracts.py`
-- `integrations/artifact_writer.py`
-- `integrations/graphify_context.py`
-- `missions/research_mission.py`
-- `missions/implementation_mission.py`
-- `missions/publishing_mission.py`
-- `docs/integration.md`
+- `coi_integrations.scheduleos` exposes the ScheduleOS-facing bootstrap adapter.
+- `coi_orchestrator.demo` emits local `task-run`, `execution-log`, `result-bundle`, and `summary.json` artifacts.
+- `coi_api.server` exposes health, run creation, run retrieval, event timeline, summary, and bootstrap endpoints.
+- `examples/tasks/local_bootstrap.task.json` provides a standalone task payload for local validation.
+
+Future integrations can add graphify context hydration and mission-specific templates without changing the current contract shape.
 
 ## Example flows
 

@@ -1,8 +1,12 @@
-# Mission placeholders
+# Missions
 
-This directory is reserved for future mission templates that will build on the delegated bootstrap path proven in the current sprint.
+This directory is reserved for mission payload templates that build on the local bootstrap path.
 
-Planned next steps after the backbone loop works:
+Current local payload:
+
+- `examples/tasks/local_bootstrap.task.json`
+
+Planned next steps:
 
 - reusable mission templates
 - mission-specific routing policies

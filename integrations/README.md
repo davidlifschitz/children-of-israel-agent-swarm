@@ -1,9 +1,12 @@
-# Integration placeholders
+# Integrations
 
-This directory is reserved for future repo-level integrations that will reuse the first delegated execution path.
+The packaged integration code lives under `packages/integrations/src/coi_integrations`.
 
-Planned follow-ons after the current sprint:
+Current surface:
 
-- ScheduleOS submission bridge
+- `coi_integrations.scheduleos.ScheduleOSExecutionAdapter` accepts `repo.bootstrap` tasks and returns a stable shell-facing summary.
+
+Planned follow-ons:
+
 - graphify-driven context prefetch
 - multi-skill delegation chains

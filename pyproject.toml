@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "children-of-israel-agent-swarm"
+version = "0.1.0"
+description = "Skills-first agent swarm framework with a local executable foundations path."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "PyYAML>=6.0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+coi-api = "coi_api.server:main"
+coi-demo = "coi_orchestrator.demo:main"
+coi-scheduleos = "coi_integrations.scheduleos:main"
+
+[tool.setuptools.packages.find]
+where = [
+  "packages/contracts/src",
+  "packages/runtime/src",
+  "packages/orchestrator/src",
+  "packages/law_engine/src",
+  "packages/storage/src",
+  "packages/api/src",
+  "packages/integrations/src",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [
+  "packages/contracts/src",
+  "packages/runtime/src",
+  "packages/orchestrator/src",
+  "packages/law_engine/src",
+  "packages/storage/src",
+  "packages/api/src",
+  "packages/integrations/src",
+]
+

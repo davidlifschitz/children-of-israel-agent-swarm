@@ -2,7 +2,7 @@
 
 A skill pack and governance framework for AI agent swarms. Jewish tradition serves as architectural inspiration for agent personas, hierarchical orchestration, and a three-tier legal system.
 
-**This repo is not an engine.** It is a set of skills, laws, and configuration that you hand to any agent swarm (Hermes, Devin, Claude Code, etc.) and tell it to align. The swarm reads the skill files, adopts the tribal personas, and follows the governance framework. Why build an engine when you can hand your agent a playbook?
+The repo is still skills-first: the skills, laws, and configuration are the product source of truth. It also includes a minimal local execution layer so maintainers can validate contracts, run a mock bootstrap task, inspect events, and expose a small API without ScheduleOS, graphify, or live model services.
 
 ## Quick Start
 
@@ -45,6 +45,15 @@ law/
 config/
 ├── mission.yaml                     # SLAs, model routing, checkpointing
 └── hermes_pipeline.yaml             # Hermes skill mapping + constitution enforcement
+
+packages/
+├── contracts/                       # Run, worker, event, law, storage contracts
+├── runtime/                         # Mock, Ollama, and Hermes runtime adapters
+├── orchestrator/                    # Local lifecycle owner and demo CLI
+├── law_engine/                      # YAML artifact loader + verdict evaluator
+├── storage/                         # In-memory and file-backed repositories
+├── api/                             # Local HTTP control plane
+└── integrations/                    # ScheduleOS-facing adapter
 
 docs/
 ├── jethro_hierarchy.md              # Architecture reference
@@ -105,6 +114,17 @@ This skill pack integrates with:
 - [autoresearch-genealogy](https://github.com/davidlifschitz/autoresearch-genealogy) — domain skill pack
 
 See [`docs/ECOSYSTEM_PLAN.md`](docs/ECOSYSTEM_PLAN.md) for integration details.
+
+## Local Execution
+
+```bash
+uv sync --extra dev
+uv run python scripts/check_import_boundaries.py
+uv run --extra dev pytest
+uv run coi-demo --task examples/tasks/local_bootstrap.task.json --output-dir .coi-demo
+```
+
+The demo emits `task-run`, `execution-log`, `result-bundle`, and `summary.json` artifacts locally. See [`docs/development.md`](docs/development.md) for API, ScheduleOS adapter, and live Ollama commands.
 
 ## License
 
