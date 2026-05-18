@@ -56,3 +56,27 @@ COI_RUN_LIVE_OLLAMA=1 uv run --extra dev pytest tests/test_orchestrator_api_inte
 ```
 
 If Ollama is unavailable, the test reports a typed runtime failure path rather than treating local setup as a code regression.
+
+## Agentic OS Runtime Routing
+
+Agentic OS repo-delivery runs use profile routing by default:
+
+- Moses/root intake uses the `openrouter_reasoning` model class.
+- Lower Jethro tiers keep the local Ollama classes from `config/mission.yaml`.
+- If `OPENROUTER_API_KEY` is not set, the OpenRouter profile falls back to mock output with explicit runtime metadata.
+
+Live OpenRouter usage:
+
+```bash
+export OPENROUTER_API_KEY="..."
+export AGENTIC_OS_COI_BACKEND=profile
+export AGENTIC_OS_OPENROUTER_MODEL="openrouter/auto"
+```
+
+Force one backend when debugging:
+
+```bash
+AGENTIC_OS_COI_BACKEND=mock .venv/bin/python -m pytest -q tests/test_agentic_os_runner.py
+AGENTIC_OS_COI_BACKEND=ollama .venv/bin/python -m pytest -q tests/test_agentic_os_runner.py
+AGENTIC_OS_COI_BACKEND=openrouter OPENROUTER_API_KEY="..." .venv/bin/python -m coi_api.agentic_os_runner --request /path/to/request.json
+```

@@ -7,7 +7,13 @@ from pathlib import Path
 from typing import Any, Iterator, TypedDict
 
 from coi_contracts import RunStatus, WorkerRequest, new_id, to_jsonable, utc_now
-from coi_runtime import MockRuntimeBackend, OllamaRuntimeBackend, RuntimeBackend
+from coi_runtime import (
+    MockRuntimeBackend,
+    OllamaRuntimeBackend,
+    OpenRouterRuntimeBackend,
+    ProfileRoutingRuntimeBackend,
+    RuntimeBackend,
+)
 from coi_runtime.profiles import TierRuntimeProfile, load_tier_profiles
 
 try:  # pragma: no cover - LangGraph is optional in the local deterministic path.
@@ -453,14 +459,22 @@ def _approval_policy(value: Any) -> dict[str, str]:
 def _default_backend() -> RuntimeBackend:
     backend_name = os.environ.get("AGENTIC_OS_COI_BACKEND", "auto").strip().lower()
     model = os.environ.get("AGENTIC_OS_OLLAMA_MODEL") or os.environ.get("OLLAMA_MODEL") or "qwen2.5-coder:1.5b"
+    openrouter_model = os.environ.get("AGENTIC_OS_OPENROUTER_MODEL") or os.environ.get("OPENROUTER_MODEL") or "openrouter/auto"
+    openrouter = OpenRouterRuntimeBackend(
+        model=openrouter_model,
+        referer=os.environ.get("OPENROUTER_HTTP_REFERER") or os.environ.get("OPENROUTER_SITE_URL"),
+        title=os.environ.get("OPENROUTER_APP_TITLE") or "agentic-os",
+    )
     ollama = OllamaRuntimeBackend(model=model)
     if backend_name == "mock":
         return MockRuntimeBackend(name="agentic-os-mock")
+    if backend_name == "profile":
+        return ProfileRoutingRuntimeBackend(openrouter=openrouter)
+    if backend_name == "openrouter":
+        return openrouter
     if backend_name == "ollama":
         return ollama
-    if ollama.available():
-        return ollama
-    return MockRuntimeBackend(name="agentic-os-mock-fallback")
+    return ProfileRoutingRuntimeBackend(openrouter=openrouter)
 
 
 def _write_stage_artifact(
