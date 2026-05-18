@@ -19,6 +19,16 @@ uv run coi-demo --task examples/tasks/local_bootstrap.task.json --output-dir .co
 5. emit `task-run`, `execution-log`, and `result-bundle` artifacts
 6. return a shell-facing summary that ScheduleOS can render
 
+## Agentic OS profile routing
+
+When `agentic-os` invokes `coi_api.agentic_os_runner`, the default backend is profile-routed:
+
+- `moses` resolves to `openrouter_reasoning` and provider `openrouter`.
+- lower execution tribes resolve to the configured Ollama model classes.
+- missing OpenRouter credentials do not hide the route; the worker id becomes `moses:openrouter-mock-fallback` and output metadata records `provider=openrouter`, `model=openrouter/auto`, and `fallback=mock`.
+
+Set `OPENROUTER_API_KEY` to make Moses use the live OpenRouter chat-completions adapter. Use `AGENTIC_OS_COI_BACKEND=mock`, `ollama`, `openrouter`, or `profile` to force a backend while debugging.
+
 ## Output layout
 
 - `task.json`

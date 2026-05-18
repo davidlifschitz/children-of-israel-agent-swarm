@@ -56,14 +56,14 @@ model_classes:
     json_mode: true
 
 tier_model_classes:
-  root: "root_judge"
+  root: "openrouter_reasoning"
   tier_1: "senior_judge"
   tier_2: "compliance"
   tier_3: "coordinator"
   tier_4: "leaf_executor"
 
 tribe_model_classes:
-  moses: "root_judge"
+  moses: "openrouter_reasoning"
   judah: "senior_judge"
   levi: "senior_judge"
   dan: "senior_judge"

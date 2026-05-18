@@ -52,7 +52,10 @@ def test_agentic_os_runner_streams_jethro_repo_delivery_events(tmp_path):
     assert approval_gates == ["implementation"]
     assert dispatched
     assert all(event["stage"] != "implementation" for event in dispatched)
-    assert all(event["model_policy"]["provider"] == "ollama" for event in dispatched)
+    providers_by_stage = {event["stage"]: event["model_policy"]["provider"] for event in dispatched}
+    assert providers_by_stage["intake"] == "openrouter"
+    assert providers_by_stage["spec"] == "ollama"
+    assert providers_by_stage["plan"] == "ollama"
     completed_artifact_paths = [
         event["payload"]["artifact"]["relative_path"]
         for event in events
@@ -68,6 +71,8 @@ def test_model_policy_resolves_jethro_tiers_and_preserves_legacy_routing():
     profiles = load_tier_profiles(REPO_ROOT / "config" / "mission.yaml")
 
     assert profiles["moses"].tier.value == "root"
+    assert profiles["moses"].model_class == "openrouter_reasoning"
+    assert profiles["moses"].provider == "openrouter"
     assert profiles["judah"].model_class == "senior_judge"
     assert profiles["simeon"].model_class == "compliance"
     assert profiles["reuben"].model_class == "leaf_executor"
