@@ -16,6 +16,9 @@ dependencies = [
 dev = [
   "pytest>=8.0",
 ]
+langgraph = [
+  "langgraph>=0.2",
+]
 
 [project.scripts]
 coi-api = "coi_api.server:main"
@@ -44,4 +47,3 @@ pythonpath = [
   "packages/api/src",
   "packages/integrations/src",
 ]
-

@@ -22,9 +22,67 @@ sla:
   hermes_fallback_seconds: 10       # time to wait before falling back from Hermes to tribal node
 
 # ---------------------------------------------------------------------------
+# Model policy classes
+# ---------------------------------------------------------------------------
+model_classes:
+  root_judge:
+    provider: "ollama"
+    model: "llama3.2"
+    json_mode: true
+
+  senior_judge:
+    provider: "ollama"
+    model: "llama3.2"
+    json_mode: true
+
+  compliance:
+    provider: "ollama"
+    model: "llama3.2"
+    json_mode: true
+
+  coordinator:
+    provider: "ollama"
+    model: "llama3.2"
+    json_mode: true
+
+  leaf_executor:
+    provider: "ollama"
+    model: "llama3.2"
+    json_mode: true
+
+  openrouter_reasoning:
+    provider: "openrouter"
+    model: "openrouter/auto"
+    json_mode: true
+
+tier_model_classes:
+  root: "root_judge"
+  tier_1: "senior_judge"
+  tier_2: "compliance"
+  tier_3: "coordinator"
+  tier_4: "leaf_executor"
+
+tribe_model_classes:
+  moses: "root_judge"
+  judah: "senior_judge"
+  levi: "senior_judge"
+  dan: "senior_judge"
+  joseph: "senior_judge"
+  simeon: "compliance"
+  issachar: "coordinator"
+  zebulun: "coordinator"
+  asher: "coordinator"
+  reuben: "leaf_executor"
+  naphtali: "leaf_executor"
+  gad: "leaf_executor"
+  benjamin: "leaf_executor"
+
+# ---------------------------------------------------------------------------
 # Per-tribe runtime model routing.
 # All tribes route to local Ollama (llama3.2) for local dev.
 # The packaged default tests use the mock backend; live Ollama is opt-in.
+# This block is retained for older callers; model_classes/tier_model_classes
+# are the canonical agentic-os resolver path.
 # ---------------------------------------------------------------------------
 tribe_model_routing:
 

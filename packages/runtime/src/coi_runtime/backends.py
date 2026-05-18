@@ -53,7 +53,15 @@ class OllamaRuntimeBackend:
         probe_url = self.endpoint.rsplit("/", 1)[0].rsplit("/", 1)[0] + "/api/tags"
         try:
             with request.urlopen(probe_url, timeout=2.0) as response:
-                return response.status < 500
+                if response.status >= 500:
+                    return False
+                payload = json.loads(response.read().decode("utf-8") or "{}")
+                models = payload.get("models", [])
+                return any(
+                    item.get("name") == self.model or item.get("model") == self.model
+                    for item in models
+                    if isinstance(item, dict)
+                )
         except (OSError, error.URLError):
             return False
 
