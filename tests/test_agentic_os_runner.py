@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -35,6 +36,7 @@ def test_agentic_os_runner_streams_jethro_repo_delivery_events(tmp_path):
         check=True,
         text=True,
         capture_output=True,
+        env={**os.environ, "AGENTIC_OS_COI_BACKEND": "mock"},
     )
 
     events = [json.loads(line) for line in completed.stdout.splitlines() if line.strip()]
@@ -51,6 +53,12 @@ def test_agentic_os_runner_streams_jethro_repo_delivery_events(tmp_path):
     assert dispatched
     assert all(event["stage"] != "implementation" for event in dispatched)
     assert all(event["model_policy"]["provider"] == "ollama" for event in dispatched)
+    completed_artifact_paths = [
+        event["payload"]["artifact"]["relative_path"]
+        for event in events
+        if event["type"] == "stage.completed"
+    ]
+    assert ".agentic-os/runs/run_pytest_agentic_os/spec.md" in completed_artifact_paths
     assert events[-1]["type"] == "run.result"
     assert events[-1]["payload"]["status"] == "waiting_approval"
     assert events[-1]["payload"]["pending_approval_gates"] == ["implementation"]

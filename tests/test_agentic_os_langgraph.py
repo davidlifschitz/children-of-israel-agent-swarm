@@ -6,6 +6,7 @@ import pytest
 
 from coi_orchestrator import agentic_os_engine as engine_module
 from coi_orchestrator.agentic_os_engine import JethroRepoDeliveryEngine, RunRequest
+from coi_runtime import MockRuntimeBackend
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -49,7 +50,10 @@ def test_langgraph_path_runs_repo_delivery_graph_when_installed(tmp_path):
 
 
 def _engine() -> JethroRepoDeliveryEngine:
-    return JethroRepoDeliveryEngine(repo_root=REPO_ROOT)
+    return JethroRepoDeliveryEngine(
+        repo_root=REPO_ROOT,
+        backend=MockRuntimeBackend(name="agentic-os-test-mock"),
+    )
 
 
 def _request(tmp_path: Path) -> RunRequest:

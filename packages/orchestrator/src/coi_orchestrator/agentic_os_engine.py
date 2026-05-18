@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterator, TypedDict
 
 from coi_contracts import RunStatus, WorkerRequest, new_id, to_jsonable, utc_now
-from coi_runtime import MockRuntimeBackend
+from coi_runtime import MockRuntimeBackend, OllamaRuntimeBackend, RuntimeBackend
 from coi_runtime.profiles import TierRuntimeProfile, load_tier_profiles
 
 try:  # pragma: no cover - LangGraph is optional in the local deterministic path.
@@ -107,12 +109,12 @@ class JethroRepoDeliveryEngine:
         *,
         repo_root: str | Path,
         config_path: str | Path | None = None,
-        backend: MockRuntimeBackend | None = None,
+        backend: RuntimeBackend | None = None,
     ) -> None:
         self.repo_root = Path(repo_root)
         self.config_path = Path(config_path) if config_path else self.repo_root / "config" / "mission.yaml"
         self.profiles = load_tier_profiles(self.config_path)
-        self.backend = backend or MockRuntimeBackend(name="agentic-os-deterministic")
+        self.backend = backend or _default_backend()
 
     def stream(self, request: RunRequest) -> Iterator[RunEvent]:
         stages = self._selected_stages(request)
@@ -134,11 +136,13 @@ class JethroRepoDeliveryEngine:
                 "execution_path": "langgraph" if use_langgraph else "deterministic_fallback",
             },
         )
+        failed = False
         if use_langgraph:
             stage_events, pending_approvals = self._run_langgraph(request, stages)
+            failed = any(event.type == "run.failed" for event in stage_events)
             yield from stage_events
         else:
-            yield self._event(
+            fallback = self._event(
                 request,
                 event_type="runtime.fallback",
                 message="LangGraph is not installed; using deterministic linear fallback.",
@@ -151,21 +155,30 @@ class JethroRepoDeliveryEngine:
                     "install_command": "uv sync --extra dev --extra langgraph",
                 },
             )
-            yield from self._run_deterministic(request, stages, pending_approvals)
+            yield fallback
+            stage_events = list(self._run_deterministic(request, stages, pending_approvals))
+            failed = any(event.type == "run.failed" for event in stage_events)
+            yield from stage_events
 
         yield self._event(
             request,
             event_type="run.result",
             message=(
-                f"Agentic OS repo delivery run is waiting for {pending_approvals[0]} approval."
+                "Agentic OS repo delivery run failed."
+                if failed
+                else f"Agentic OS repo delivery run is waiting for {pending_approvals[0]} approval."
                 if pending_approvals
                 else "Agentic OS repo delivery run is ready for control-plane handling."
             ),
             actor="moses",
             profile=self.profiles["moses"],
             payload={
-                "status": "waiting_approval" if pending_approvals else "ready_for_agentic_os",
-                "run_status": "awaiting_approval" if pending_approvals else RunStatus.SUCCEEDED.value,
+                "status": "failed" if failed else "waiting_approval" if pending_approvals else "ready_for_agentic_os",
+                "run_status": RunStatus.FAILED.value
+                if failed
+                else "awaiting_approval"
+                if pending_approvals
+                else RunStatus.SUCCEEDED.value,
                 "pending_approval_gates": pending_approvals,
                 "stages": stage_names,
                 "ready_actions": [
@@ -186,7 +199,10 @@ class JethroRepoDeliveryEngine:
     ) -> Iterator[RunEvent]:
         for stage in stages:
             pending_count = len(pending_approvals)
-            yield from self._stage_events(request, stage, pending_approvals)
+            events = self._stage_events(request, stage, pending_approvals)
+            yield from events
+            if any(event.type == "run.failed" for event in events):
+                break
             if len(pending_approvals) > pending_count:
                 break
 
@@ -283,6 +299,23 @@ class JethroRepoDeliveryEngine:
             )
         )
         worker_result = self.backend.execute(worker_request)
+        if worker_result.status != RunStatus.SUCCEEDED:
+            failure = worker_result.failure
+            events.append(
+                self._event(
+                    request,
+                    event_type="run.failed",
+                    message=failure.message if failure else f"{stage.name} stage failed.",
+                    stage=stage.name,
+                    status="failed",
+                    actor=stage.tribe_id,
+                    profile=profile,
+                    payload={"worker_result": to_jsonable(worker_result)},
+                )
+            )
+            return events
+        stage_output = _stage_output(stage.name, worker_result.output)
+        artifact = _write_stage_artifact(request, stage, worker_result.output, stage_output)
         events.append(
             self._event(
                 request,
@@ -293,7 +326,8 @@ class JethroRepoDeliveryEngine:
                 profile=profile,
                 payload={
                     "worker_result": to_jsonable(worker_result),
-                    "output": _stage_output(stage.name, worker_result.output),
+                    "output": stage_output,
+                    "artifact": artifact,
                 },
             )
         )
@@ -414,3 +448,61 @@ def _approval_policy(value: Any) -> dict[str, str]:
     for stage in required_stages:
         policy[str(stage)] = "required"
     return policy
+
+
+def _default_backend() -> RuntimeBackend:
+    backend_name = os.environ.get("AGENTIC_OS_COI_BACKEND", "auto").strip().lower()
+    model = os.environ.get("AGENTIC_OS_OLLAMA_MODEL") or os.environ.get("OLLAMA_MODEL") or "qwen2.5-coder:1.5b"
+    ollama = OllamaRuntimeBackend(model=model)
+    if backend_name == "mock":
+        return MockRuntimeBackend(name="agentic-os-mock")
+    if backend_name == "ollama":
+        return ollama
+    if ollama.available():
+        return ollama
+    return MockRuntimeBackend(name="agentic-os-mock-fallback")
+
+
+def _write_stage_artifact(
+    request: RunRequest,
+    stage: RepoDeliveryStage,
+    worker_output: JsonDict,
+    stage_output: JsonDict,
+) -> JsonDict:
+    repo_path = Path(request.repo_path).expanduser().resolve()
+    artifact_dir = repo_path / ".agentic-os" / "runs" / request.run_id
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    artifact_path = artifact_dir / f"{stage.name}.md"
+    artifact_path.write_text(
+        "\n".join(
+            [
+                f"# {stage.name.title()} Output",
+                "",
+                f"- run: `{request.run_id}`",
+                f"- stage: `{stage.name}`",
+                f"- actor: `{stage.tribe_id}`",
+                f"- backend: `{getattr(worker_output, 'name', 'runtime')}`",
+                "",
+                "## Goal",
+                "",
+                request.goal,
+                "",
+                "## Summary",
+                "",
+                str(stage_output.get("summary") or ""),
+                "",
+                "## Worker Output",
+                "",
+                "```json",
+                json.dumps(worker_output, indent=2, sort_keys=True),
+                "```",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return {
+        "path": str(artifact_path),
+        "relative_path": str(artifact_path.relative_to(repo_path)),
+        "content_type": "text/markdown",
+    }
